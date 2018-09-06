@@ -15,22 +15,12 @@ use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 
 mod parser;
-use parser::{Interfaces, interface_parse};
+use parser::{interfaces};
 
-fn has_method_in_interface(interfaces: &Interfaces, interface_name: &str, method_name: &str) -> bool {
-    if let Some(methods) = interfaces.get(interface_name) {
-        for method in methods {
-            if method == method_name {
-                return true;
-            }
-        }
-    }
-    return false;
-}
 
 #[proc_macro_derive(Elementish)]
 pub fn element_macro_derive(input: TokenStream) -> TokenStream {
-    let interfaces = interface_parse().unwrap();
+    let interfaces = interfaces::parse().unwrap();
     println!("Parsed interfaces: {:#?}", interfaces);
 
     // Parse the string representation
@@ -56,7 +46,7 @@ pub fn element_macro_derive(input: TokenStream) -> TokenStream {
                     let set_name = "set_".to_string() + &attr_name;
                     let setter = Ident::new(&set_name, Span::call_site());
 
-                    if has_method_in_interface(&interfaces, "HTMLElement", &attr_name) {
+                    if interfaces.has_method_in_interface("HTMLElement", &attr_name) {
                         attrs.push(quote!{
                             {
                                 let dyn_el: Option<&web_sys::HtmlElement> = wasm_bindgen::JsCast::dyn_ref(&el);
@@ -67,7 +57,7 @@ pub fn element_macro_derive(input: TokenStream) -> TokenStream {
                         });
                         continue;
                     }
-                    if has_method_in_interface(&interfaces, "Element", &attr_name) {
+                    if interfaces.has_method_in_interface("Element", &attr_name) {
                         attrs.push(quote!{
                             el.#setter(&self.#i);
                         });
