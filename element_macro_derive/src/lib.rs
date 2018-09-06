@@ -5,61 +5,17 @@ extern crate proc_macro2;
 extern crate syn;
 #[macro_use]
 extern crate quote;
-
+extern crate weedle;
 extern crate sourcefile;
 #[macro_use]
 extern crate failure;
-use failure::{Fail, ResultExt};
-use sourcefile::SourceFile;
-use std::ffi::OsStr;
-
-extern crate weedle;
-use std::fs;
 
 use std::collections::HashMap;
-
-type Interfaces = HashMap<String, Vec<String>>;
-fn me() -> Result<Interfaces, failure::Error> {
-    let entries = fs::read_dir("webidls").context("reading webidls directory")?;
-    let mut source = SourceFile::default();
-    for entry in entries {
-        let entry = entry.context("getting webidls/*.webidl entry")?;
-        let path = entry.path();
-        if path.extension() != Some(OsStr::new("webidl")) {
-            continue;
-        }
-        source = source
-            .add_file(&path)
-            .with_context(|_| format!("reading contents of file \"{}\"", path.display()))?;
-    }
-
-    let mut interfaces = HashMap::new();
-    weedle::parse(&source.contents).map(|r| {
-        for i in r {
-            match i {
-                weedle::Definition::Interface(n) => {
-                    let mut setters = vec![];
-                    for attr in n.members.body {
-                        match attr {
-                            weedle::interface::InterfaceMember::Attribute(a) => {
-                                setters.push(a.identifier.0.into());
-                            }
-                            _ => (),
-                        }
-                    }
-                    interfaces.insert(n.identifier.0.into(), setters);
-                }
-                _ => (),
-            }
-        }
-    });
-
-    Ok(interfaces)
-}
-
 use proc_macro::TokenStream;
-
 use proc_macro2::{Ident, Span};
+
+mod parser;
+use parser::{Interfaces, interface_parse};
 
 fn has_method_in_interface(interfaces: &Interfaces, interface_name: &str, method_name: &str) -> bool {
     if let Some(methods) = interfaces.get(interface_name) {
@@ -74,7 +30,7 @@ fn has_method_in_interface(interfaces: &Interfaces, interface_name: &str, method
 
 #[proc_macro_derive(Elementish)]
 pub fn element_macro_derive(input: TokenStream) -> TokenStream {
-    let interfaces = me().unwrap();
+    let interfaces = interface_parse().unwrap();
     println!("Parsed interfaces: {:#?}", interfaces);
 
     // Parse the string representation
