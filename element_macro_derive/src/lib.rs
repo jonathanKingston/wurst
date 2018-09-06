@@ -1,6 +1,5 @@
 #![feature(use_extern_macros, extern_prelude)]
 #![recursion_limit = "128"]
-//#![feature(proc_macro, wasm_custom_section, wasm_import_module, use_extern_macros)]
 extern crate proc_macro;
 extern crate proc_macro2;
 extern crate syn;
@@ -8,7 +7,6 @@ extern crate syn;
 extern crate quote;
 
 extern crate sourcefile;
-//extern crate wasm_bindgen;
 #[macro_use]
 extern crate failure;
 use failure::{Fail, ResultExt};
@@ -119,24 +117,6 @@ pub fn element_macro_derive(input: TokenStream) -> TokenStream {
                         });
                         continue;
                     }
-                    /*
-                    attrs.push(quote! {
-                                            // Downcasting:
-                                            let dyn_el: Result<web_sys::HtmlElement, _> = wasm_bindgen::JsCast::dyn_into(el);
-                                            el = match dyn_el {
-                                                Ok(html_el) => {
-                                                    html_el.#setter(&self.#i);
-                    // upcasting back
-                                                    let el: web_sys::Element = html_el.into();
-                                                    el
-                                                },
-                                                Err(el) => {
-                                                    el
-                                                },
-                                             };
-                                      //      el.#setter(&self.#i);
-                                                       });
-                    */
                 }
             }
         }
