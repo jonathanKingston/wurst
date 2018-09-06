@@ -12,4 +12,4 @@ members = [
 [dependencies]
 element_macro_derive = { path = "element_macro_derive" }
 wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document'] }

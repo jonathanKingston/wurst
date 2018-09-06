@@ -83,6 +83,21 @@ $( println!("{:?}", el.$key()); )*
     };
 }
 */
+#[macro_export]
+macro_rules! create_element {
+    ($name:tt, {$( $key:ident : $value:expr ),*}) => {
+        {
+            #[derive(Elementish)]
+            struct MyEl {
+                $( $key: String, )*
+            };
+            let el_container = MyEl {
+                $( $key: $value.into(), )*
+            };
+            el_container
+        }
+    }
+}
 
 macro_rules! hashmap {
     ($( $key:tt : $value:expr ),*) => {
@@ -95,6 +110,6 @@ macro_rules! hashmap {
 }
 
 pub trait Elementish {
-    fn create(&self) -> Element;
-    fn append_dom(&self, el: Element);
+    fn create(&mut self) -> web_sys::Element;
+    fn append_dom(&mut self, el: web_sys::Element);
 }

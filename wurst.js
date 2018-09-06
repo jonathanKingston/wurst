@@ -1,6 +1,25 @@
 /* tslint:disable */
 import * as wasm from './wurst_bg';
 
+/**
+* @returns {void}
+*/
+export function make() {
+    return wasm.make();
+}
+
+const __widl_f_create_element_Document_target = Document.prototype.createElement || function() {
+    throw new Error(`wasm-bindgen: Document.prototype.createElement does not exist`);
+};
+
+let cachegetUint32Memory = null;
+function getUint32Memory() {
+    if (cachegetUint32Memory === null || cachegetUint32Memory.buffer !== wasm.memory.buffer) {
+        cachegetUint32Memory = new Uint32Array(wasm.memory.buffer);
+    }
+    return cachegetUint32Memory;
+}
+
 const slab = [{ obj: undefined }, { obj: null }, { obj: true }, { obj: false }];
 
 let slab_next = slab.length;
@@ -16,20 +35,6 @@ function addHeapObject(obj) {
     return idx << 1;
 }
 
-export function __wbg_static_accessor_window_window() {
-    return addHeapObject(window);
-}
-/**
-* @returns {void}
-*/
-export function make() {
-    return wasm.make();
-}
-
-const __widl_f_document_Window_target = function() {
-    return this.document;
-}  ;
-
 const stack = [];
 
 function getObject(idx) {
@@ -41,29 +46,6 @@ function getObject(idx) {
         return val.obj;
         
     }
-}
-
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
-export function __widl_f_document_Window(arg0) {
-    
-    const val = __widl_f_document_Window_target.call(getObject(arg0));
-    return isLikeNone(val) ? 0 : addHeapObject(val);
-    
-}
-
-const __widl_f_set_attribute_Element_target = Element.prototype.setAttribute  || function() {
-    throw new Error(`wasm-bindgen: Element.prototype.setAttribute does not exist`);
-} ;
-
-let cachegetUint32Memory = null;
-function getUint32Memory() {
-    if (cachegetUint32Memory === null || cachegetUint32Memory.buffer !== wasm.memory.buffer) {
-        cachegetUint32Memory = new Uint32Array(wasm.memory.buffer);
-    }
-    return cachegetUint32Memory;
 }
 
 const TextDecoder = typeof self === 'object' && self.TextDecoder
@@ -84,27 +66,10 @@ function getStringFromWasm(ptr, len) {
     return cachedDecoder.decode(getUint8Memory().subarray(ptr, ptr + len));
 }
 
-export function __widl_f_set_attribute_Element(arg0, arg1, arg2, arg3, arg4, exnptr) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    let varg3 = getStringFromWasm(arg3, arg4);
-    try {
-        __widl_f_set_attribute_Element_target.call(getObject(arg0), varg1, varg3);
-    } catch (e) {
-        const view = getUint32Memory();
-        view[exnptr / 4] = 1;
-        view[exnptr / 4 + 1] = addHeapObject(e);
-        
-    }
-}
-
-const __widl_f_create_element_using_local_name_Document_target = Document.prototype.createElement  || function() {
-    throw new Error(`wasm-bindgen: Document.prototype.createElement does not exist`);
-} ;
-
-export function __widl_f_create_element_using_local_name_Document(arg0, arg1, arg2, exnptr) {
+export function __widl_f_create_element_Document(arg0, arg1, arg2, exnptr) {
     let varg1 = getStringFromWasm(arg1, arg2);
     try {
-        return addHeapObject(__widl_f_create_element_using_local_name_Document_target.call(getObject(arg0), varg1));
+        return addHeapObject(__widl_f_create_element_Document_target.call(getObject(arg0), varg1));
     } catch (e) {
         const view = getUint32Memory();
         view[exnptr / 4] = 1;
@@ -122,9 +87,13 @@ function GetOwnOrInheritedPropertyDescriptor(obj, id) {
     throw new Error(`descriptor for id='${id}' not found`);
 }
 
-const __widl_f_body_Document_target = GetOwnOrInheritedPropertyDescriptor(Document.prototype, 'body').get  || function() {
+const __widl_f_body_Document_target = GetOwnOrInheritedPropertyDescriptor(Document.prototype, 'body').get || function() {
     throw new Error(`wasm-bindgen: GetOwnOrInheritedPropertyDescriptor(Document.prototype, 'body').get does not exist`);
-} ;
+};
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
 
 export function __widl_f_body_Document(arg0) {
     
@@ -133,9 +102,40 @@ export function __widl_f_body_Document(arg0) {
     
 }
 
-const __widl_f_append_child_Node_target = Node.prototype.appendChild  || function() {
+const __widl_f_set_id_Element_target = GetOwnOrInheritedPropertyDescriptor(Element.prototype, 'id').set || function() {
+    throw new Error(`wasm-bindgen: GetOwnOrInheritedPropertyDescriptor(Element.prototype, 'id').set does not exist`);
+};
+
+export function __widl_f_set_id_Element(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    __widl_f_set_id_Element_target.call(getObject(arg0), varg1);
+}
+
+export function __widl_instanceof_HTMLElement(idx) {
+    return getObject(idx) instanceof HTMLElement ? 1 : 0;
+}
+
+const __widl_f_set_title_HTMLElement_target = GetOwnOrInheritedPropertyDescriptor(HTMLElement.prototype, 'title').set || function() {
+    throw new Error(`wasm-bindgen: GetOwnOrInheritedPropertyDescriptor(HTMLElement.prototype, 'title').set does not exist`);
+};
+
+export function __widl_f_set_title_HTMLElement(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    __widl_f_set_title_HTMLElement_target.call(getObject(arg0), varg1);
+}
+
+const __widl_f_set_lang_HTMLElement_target = GetOwnOrInheritedPropertyDescriptor(HTMLElement.prototype, 'lang').set || function() {
+    throw new Error(`wasm-bindgen: GetOwnOrInheritedPropertyDescriptor(HTMLElement.prototype, 'lang').set does not exist`);
+};
+
+export function __widl_f_set_lang_HTMLElement(arg0, arg1, arg2) {
+    let varg1 = getStringFromWasm(arg1, arg2);
+    __widl_f_set_lang_HTMLElement_target.call(getObject(arg0), varg1);
+}
+
+const __widl_f_append_child_Node_target = Node.prototype.appendChild || function() {
     throw new Error(`wasm-bindgen: Node.prototype.appendChild does not exist`);
-} ;
+};
 
 export function __widl_f_append_child_Node(arg0, arg1, exnptr) {
     try {
@@ -146,6 +146,13 @@ export function __widl_f_append_child_Node(arg0, arg1, exnptr) {
         view[exnptr / 4 + 1] = addHeapObject(e);
         
     }
+}
+
+export function __widl_f_document_() {
+    
+    const val = (() => document)();
+    return isLikeNone(val) ? 0 : addHeapObject(val);
+    
 }
 
 function dropRef(idx) {

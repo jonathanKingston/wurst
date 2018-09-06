@@ -10,5 +10,9 @@ proc-macro = true
 syn = { version = '0.14', features = ['full'] }
 quote = '0.6'
 proc-macro2 = "0.4.13"
-#wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-#web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+wasm-bindgen-webidl = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+sourcefile = "0.1"
+failure = "0.1.2"
+weedle = "0.6"
