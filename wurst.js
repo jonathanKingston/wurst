@@ -102,35 +102,8 @@ export function __widl_f_body_Document(arg0) {
     
 }
 
-const __widl_f_set_id_Element_target = GetOwnOrInheritedPropertyDescriptor(Element.prototype, 'id').set || function() {
-    throw new Error(`wasm-bindgen: GetOwnOrInheritedPropertyDescriptor(Element.prototype, 'id').set does not exist`);
-};
-
-export function __widl_f_set_id_Element(arg0, arg1, arg2) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    __widl_f_set_id_Element_target.call(getObject(arg0), varg1);
-}
-
 export function __widl_instanceof_HTMLElement(idx) {
     return getObject(idx) instanceof HTMLElement ? 1 : 0;
-}
-
-const __widl_f_set_title_HTMLElement_target = GetOwnOrInheritedPropertyDescriptor(HTMLElement.prototype, 'title').set || function() {
-    throw new Error(`wasm-bindgen: GetOwnOrInheritedPropertyDescriptor(HTMLElement.prototype, 'title').set does not exist`);
-};
-
-export function __widl_f_set_title_HTMLElement(arg0, arg1, arg2) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    __widl_f_set_title_HTMLElement_target.call(getObject(arg0), varg1);
-}
-
-const __widl_f_set_lang_HTMLElement_target = GetOwnOrInheritedPropertyDescriptor(HTMLElement.prototype, 'lang').set || function() {
-    throw new Error(`wasm-bindgen: GetOwnOrInheritedPropertyDescriptor(HTMLElement.prototype, 'lang').set does not exist`);
-};
-
-export function __widl_f_set_lang_HTMLElement(arg0, arg1, arg2) {
-    let varg1 = getStringFromWasm(arg1, arg2);
-    __widl_f_set_lang_HTMLElement_target.call(getObject(arg0), varg1);
 }
 
 const __widl_f_append_child_Node_target = Node.prototype.appendChild || function() {

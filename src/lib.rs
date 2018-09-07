@@ -1,36 +1,77 @@
-#[macro_use]
 extern crate element_macro_derive;
+extern crate attribute_macro_derive;
 
 extern crate web_sys;
-use web_sys::Element;
+extern crate wasm_bindgen;
 
+include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+/*
 #[macro_export]
 macro_rules! create_element {
     ($name:tt, {$( $key:ident : $value:expr ),*}) => {
         {
-            #[derive(Elementish)]
-            struct MyEl {
+/*
+            #[derive(Attributish)]
+            struct MyAttrs {
                 $( $key: String, )*
             };
-            let el_container = MyEl {
+
+            let attrs = MyAttrs {
                 $( $key: $value.into(), )*
+            };
+*/
+            #[derive(AttributishTwo)]
+            struct MyAttrs {
+                attrs: Option<T>,
+                $( $key: String, )*
+            };
+            let attrs2 = MyAttrs::create();
+
+/*
+            let attrs2 = MyAttrs {
+                attrs: None,
+                $( $key: $value.into(), )*
+            };
+*/
+
+/*
+let attrs2 = HtmlAttributes {
+    $( $key: Some($value.into()), )*
+    ..Default::default()
+};
+*/
+
+            let el_container = El {
+                name: $name.into(),
+                //attrs
+                attrs: attrs2
             };
             el_container
         }
     }
 }
+*/
 
-macro_rules! hashmap {
-    ($( $key:tt : $value:expr ),*) => {
-      {
-        let mut hash = HashMap::new();
-        $( hash.insert($key.to_string(), $value.to_string()); )*
-        hash
-      }
-    };
+pub struct El<A> {
+    pub name: String,
+    pub attrs: A
 }
 
-pub trait Elementish {
-    fn create(&mut self) -> web_sys::Element;
-    fn append_dom(&mut self, el: web_sys::Element);
+impl <A: Attributish> El<A> {
+    pub fn create(&mut self) -> web_sys::Element {
+        let el = web_sys::Window::document().unwrap().create_element(&self.name).unwrap();
+        let el = self.attrs.flush(el);
+        el
+    }
+    // Helper just to append to dom
+    pub fn append_dom(&mut self, el: web_sys::Element) {
+        let node: web_sys::Node = web_sys::Window::document().unwrap().body().unwrap().into();
+        let el_node: web_sys::Node = el.into();
+        node.append_child(&el_node);
+    }
+}
+
+pub trait Attributish {
+    fn flush(&self, el: web_sys::Element) -> web_sys::Element;
 }

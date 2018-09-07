@@ -1,11 +1,12 @@
-#![feature(use_extern_macros)]
-//#![feature(wasm_custom_section, wasm_import_module, use_extern_macros)]
 #[macro_use]
 extern crate wurst;
 //use wurst;
 #[macro_use]
 extern crate element_macro_derive;
-use wurst::Elementish;
+#[macro_use]
+extern crate attribute_macro_derive;
+use wurst::{Attributish, El, HTMLElementAttributes, HTMLImageElementAttributes, HTMLDivElementAttributes, HTMLLabelElementAttributes};
+use wurst::Ifi;
 
 extern crate wasm_bindgen;
 use wasm_bindgen::prelude::*;

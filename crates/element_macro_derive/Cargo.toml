@@ -1,0 +1,17 @@
+[package]
+name = "element_macro_derive"
+version = "0.1.0"
+authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = '0.14', features = ['full'] }
+quote = '0.6'
+proc-macro2 = "0.4.13"
+wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+wasm-bindgen-webidl = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+failure = "0.1.2"
+parser = { path = "../parser" }

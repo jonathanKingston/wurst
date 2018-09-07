@@ -2,14 +2,24 @@
 name = "wurst"
 version = "0.1.0"
 authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
+build = "build.rs"
 
 [workspace]
 
 members = [
-    "element_macro_derive",
+    "crates/element_macro_derive",
+    "crates/attribute_macro_derive",
+    "crates/parser",
 ]
 
+[build-dependencies]
+parser = { path = "crates/parser" }
+sourcefile = "0.1"
+failure = "0.1.2"
+weedle = "0.6"
+
 [dependencies]
-element_macro_derive = { path = "element_macro_derive" }
+element_macro_derive = { path = "crates/element_macro_derive" }
+attribute_macro_derive = { path = "crates/attribute_macro_derive" }
 wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document'] }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement'] }

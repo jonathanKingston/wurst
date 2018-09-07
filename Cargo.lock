@@ -7,6 +7,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "attribute_macro_derive"
+version = "0.1.0"
+dependencies = [
+ "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parser 0.1.0",
+ "proc-macro2 0.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quote 0.6.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "syn 0.14.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasm-bindgen 0.2.19 (git+https://github.com/rustwasm/wasm-bindgen.git)",
+ "wasm-bindgen-webidl 0.2.17 (git+https://github.com/rustwasm/wasm-bindgen.git)",
+ "web-sys 0.1.0 (git+https://github.com/rustwasm/wasm-bindgen.git)",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -52,14 +66,13 @@ name = "element_macro_derive"
 version = "0.1.0"
 dependencies = [
  "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parser 0.1.0",
  "proc-macro2 0.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "quote 0.6.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "sourcefile 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 0.14.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "wasm-bindgen 0.2.19 (git+https://github.com/rustwasm/wasm-bindgen.git)",
  "wasm-bindgen-webidl 0.2.17 (git+https://github.com/rustwasm/wasm-bindgen.git)",
  "web-sys 0.1.0 (git+https://github.com/rustwasm/wasm-bindgen.git)",
- "weedle 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -158,6 +171,18 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "memchr 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "parser"
+version = "0.1.0"
+dependencies = [
+ "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "heck 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "proc-macro2 0.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quote 0.6.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sourcefile 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "weedle 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -455,9 +480,14 @@ dependencies = [
 name = "wurst"
 version = "0.1.0"
 dependencies = [
+ "attribute_macro_derive 0.1.0",
  "element_macro_derive 0.1.0",
+ "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parser 0.1.0",
+ "sourcefile 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "wasm-bindgen 0.2.19 (git+https://github.com/rustwasm/wasm-bindgen.git)",
  "web-sys 0.1.0 (git+https://github.com/rustwasm/wasm-bindgen.git)",
+ "weedle 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [metadata]

@@ -5,8 +5,6 @@ extern crate proc_macro2;
 extern crate syn;
 #[macro_use]
 extern crate quote;
-extern crate weedle;
-extern crate sourcefile;
 #[macro_use]
 extern crate failure;
 
@@ -14,13 +12,12 @@ use std::collections::HashMap;
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 
-mod parser;
-use parser::{interfaces};
+extern crate parser;
+use parser::Interfaces;
 
-
-#[proc_macro_derive(Elementish)]
+#[proc_macro_derive(AttributishTwo, attributes(TagName))]
 pub fn element_macro_derive(input: TokenStream) -> TokenStream {
-    let interfaces = interfaces::parse().unwrap();
+    let interfaces = Interfaces::parse().unwrap();
     println!("Parsed interfaces: {:#?}", interfaces);
 
     // Parse the string representation
@@ -45,41 +42,28 @@ pub fn element_macro_derive(input: TokenStream) -> TokenStream {
                     let attr_name = i.to_string();
                     let set_name = "set_".to_string() + &attr_name;
                     let setter = Ident::new(&set_name, Span::call_site());
-
-                    if interfaces.has_method_in_interface("HTMLElement", &attr_name) {
-                        attrs.push(quote!{
-                            {
-                                let dyn_el: Option<&web_sys::HtmlElement> = wasm_bindgen::JsCast::dyn_ref(&el);
-                                dyn_el.map(|html_el| {
-                                    html_el.#setter(&self.#i);
-                                });
-                            }
-                        });
-                        continue;
-                    }
-                    if interfaces.has_method_in_interface("Element", &attr_name) {
-                        attrs.push(quote!{
-                            el.#setter(&self.#i);
-                        });
-                        continue;
-                    }
+                    attrs.push(quote!{
+                        attrs.#setter(&self.#i);
+                    });
                 }
             }
         }
     }
+    let interface = Ident::new("HtmlAttributes", Span::call_site());
 
     let expanded = quote! {
-        impl Elementish for #name {
-            fn create(&mut self) -> web_sys::Element {
-                let el = web_sys::Window::document().unwrap().create_element("div").unwrap();
+        impl <T: Attributish> Attributish for #name <T> {
+            fn flush(&self, el: web_sys::Element) -> web_sys::Element {
+                let attrs = self.attrs.unwrap();
                 #(#attrs)*
                 el
             }
-            // Helper just to append to dom
-            fn append_dom(&mut self, el: web_sys::Element) {
-                let node: web_sys::Node = web_sys::Window::document().unwrap().body().unwrap().into();
-                let el_node: web_sys::Node = el.into();
-                node.append_child(&el_node);
+        }
+        impl <T: Attributish> #name <T> {
+            fn create() -> #name {
+                #name {
+                    attrs: #interface::Default(),
+                }
             }
         }
     };
