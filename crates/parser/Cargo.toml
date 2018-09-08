@@ -1,0 +1,12 @@
+[package]
+name = "parser"
+version = "0.1.0"
+authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
+
+[dependencies]
+sourcefile = "0.1"
+failure = "0.1.2"
+weedle = "0.6"
+proc-macro2 = "0.4.13"
+quote = '0.6'
+heck = "0.3"

@@ -2,3 +2,5 @@
 **/*.rs.bk
 *.swp
 node_modules/
+/*.js
+/*.wasm
