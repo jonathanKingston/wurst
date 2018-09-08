@@ -25,8 +25,8 @@ let mut div = create_element!("div", {
     title: "2323",
     lang: "boom"
 });
-let el = div.create();
-div.append_dom(el);
+div.create();
+div.add_to_body();
 
 let mut input = create_element!("input", {
     // Element interface
@@ -37,12 +37,34 @@ let mut input = create_element!("input", {
     title: "2323",
     lang: "boom"
 });
-let el = input.create();
-input.append_dom(el);
+input.create();
+input.add_to_body();
 ```
 
 The above code internally will return an `El` which implements a `Attributish` field trait.
 The concrete types are `HTMLDivElementAttributes` and `HTMLInputElementAttributes` respectively.
+
+## Next
+
+```
+let mut input = create_element!("input", {
+    // Element interface
+    id: "Boop",
+    // Input interface
+    value: "hyyyyy",
+    // HTMLElement interface
+    title: "2323",
+    lang: "boom"
+});
+
+let el = input.create();
+
+el.add_to_body();
+
+el.id = "burp";
+//  Flush attrs to the DOM
+el.flush();
+```
 
 ## Ideas
 

@@ -205,6 +205,7 @@ HTMLTableCaptionElement
                            ..Default::default()
                        };
                        let el_container = El {
+                           el: None,
                            name: #tag_string.to_string(),
                            attrs
                        };
@@ -225,6 +226,7 @@ HTMLTableCaptionElement
                             ..Default::default()
                         };
                         let el_container = El {
+                            el: None,
                             name: $name.into(),
                             attrs
                         };

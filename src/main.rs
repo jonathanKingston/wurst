@@ -17,8 +17,8 @@ pub fn make() {
         title: "2323",
         lang: "boom"
     });
-    let el = eli.create();
-    eli.append_dom(el);
+    eli.create();
+    eli.add_to_body();
 
     let mut eli = create_element!("input", {
         // Element interface
@@ -29,8 +29,8 @@ pub fn make() {
         title: "2323",
         lang: "boom"
     });
-    let el = eli.create();
-    eli.append_dom(el);
+    eli.create();
+    eli.add_to_body();
 }
 
 fn main() {}
