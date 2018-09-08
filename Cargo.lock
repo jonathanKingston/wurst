@@ -7,20 +7,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "attribute_macro_derive"
-version = "0.1.0"
-dependencies = [
- "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "parser 0.1.0",
- "proc-macro2 0.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
- "quote 0.6.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "syn 0.14.9 (registry+https://github.com/rust-lang/crates.io-index)",
- "wasm-bindgen 0.2.19 (git+https://github.com/rustwasm/wasm-bindgen.git)",
- "wasm-bindgen-webidl 0.2.17 (git+https://github.com/rustwasm/wasm-bindgen.git)",
- "web-sys 0.1.0 (git+https://github.com/rustwasm/wasm-bindgen.git)",
-]
-
-[[package]]
 name = "atty"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -60,20 +46,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "cfg-if"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "element_macro_derive"
-version = "0.1.0"
-dependencies = [
- "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "parser 0.1.0",
- "proc-macro2 0.4.17 (registry+https://github.com/rust-lang/crates.io-index)",
- "quote 0.6.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "syn 0.14.9 (registry+https://github.com/rust-lang/crates.io-index)",
- "wasm-bindgen 0.2.19 (git+https://github.com/rustwasm/wasm-bindgen.git)",
- "wasm-bindgen-webidl 0.2.17 (git+https://github.com/rustwasm/wasm-bindgen.git)",
- "web-sys 0.1.0 (git+https://github.com/rustwasm/wasm-bindgen.git)",
-]
 
 [[package]]
 name = "env_logger"
@@ -480,8 +452,6 @@ dependencies = [
 name = "wurst"
 version = "0.1.0"
 dependencies = [
- "attribute_macro_derive 0.1.0",
- "element_macro_derive 0.1.0",
  "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "parser 0.1.0",
  "sourcefile 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",

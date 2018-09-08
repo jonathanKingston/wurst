@@ -1,6 +1,3 @@
-extern crate element_macro_derive;
-extern crate attribute_macro_derive;
-
 extern crate web_sys;
 extern crate wasm_bindgen;
 

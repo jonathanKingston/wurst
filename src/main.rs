@@ -1,10 +1,5 @@
 #[macro_use]
 extern crate wurst;
-//use wurst;
-#[macro_use]
-extern crate element_macro_derive;
-#[macro_use]
-extern crate attribute_macro_derive;
 // TODO generate a prelude
 use wurst::{Attributish, El, HTMLElementAttributes, HTMLDivElementAttributes, HTMLImageElementAttributes, HTMLInputElementAttributes, HTMLLabelElementAttributes};
 
