@@ -13,17 +13,50 @@ Webby DOM abstraction.
 source build.sh
 ```
 
+## Usage
+
+Current usage of the library:
+
+```
+let mut div = create_element!("div", {
+    // Element interface
+    id: "Boop",
+    // HTMLElement interface
+    title: "2323",
+    lang: "boom"
+});
+let el = div.create();
+div.append_dom(el);
+
+let mut input = create_element!("input", {
+    // Element interface
+    id: "Boop",
+    // Input interface
+    value: "hyyyyy",
+    // HTMLElement interface
+    title: "2323",
+    lang: "boom"
+});
+let el = input.create();
+input.append_dom(el);
+```
+
+The above code internally will return an `El` which implements a `Attributish` field trait.
+The concrete types are `HTMLDivElementAttributes` and `HTMLInputElementAttributes` respectively.
+
 ## Ideas
+
+Expected API usages and ideas.
 
 ### Attribute
 
 ```rust
-[#derive(serializable)]
+#[derive(serializable)]
 struct serverResponse {
     title: Option<String>
 }
 
-[#derive(serializable, Element=HTMLDivElement)]
+#[derive(serializable, Element=HTMLDivElement)]
 struct serverResponse {
     title: Option<String>
 }
@@ -58,16 +91,6 @@ let el = create_element!("div", {
 el.add_event_listener("click", |e| {
 
 });
-
-/*
-let el Option<HTMLDivElement> = document.create_element("div").upcast("HTMLDivElement")?;
-el.set_title("boom");
-*/
-
-set_attributes!(el, {
-    "title": "sdw23rsd",
-    "value", "boom"
-})
 ```
 
 ### Code generation method

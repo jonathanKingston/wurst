@@ -19,80 +19,6 @@ use quote::ToTokens;
 extern crate heck;
 use heck::SnakeCase;
 
-/*
-HTMLDListElement
-HTMLImageElement
-HTMLOptionElement
-HTMLTableCellElement
-HTMLAnchorElement
-HTMLInputElement
-HTMLTableColElement
-HTMLAreaElement
-HTMLLabelElement
-HTMLOutputElement
-HTMLTableElement
-HTMLAudioElement
-HTMLEmbedElement
-HTMLLegendElement
-HTMLParagraphElement
-HTMLTableRowElement
-HTMLBaseElement
-HTMLFieldSetElement
-HTMLLIElement
-HTMLParamElement
-HTMLTableSectionElement
-HTMLBodyElement
-             HTMLFontElement
-             HTMLLinkElement
-             HTMLPictureElement
-          HTMLTemplateElement
-HTMLBRElement
-  HTMLMapElement
-              HTMLPreElement
-              HTMLTextAreaElement
-HTMLButtonElement
-           HTMLFormElement
-             HTMLMediaElement
-            HTMLProgressElement
-         HTMLTimeElement
-HTMLCanvasElement
-           HTMLFrameElement
-            HTMLMenuElement
-             HTMLQuoteElement
-            HTMLTitleElement
-HTMLCollection
-              HTMLFrameSetElement
-         HTMLMenuItemElement
-         HTMLScriptElement
-           HTMLTrackElement
-HTMLDataElement
-             HTMLHeadElement
-             HTMLMetaElement
-             HTMLSelectElement
-           HTMLUListElement
-HTMLDataListElement
-         HTMLHeadingElement
-          HTMLMeterElement
-            HTMLSlotElement
-             HTMLVideoElement
-HTMLDetailsElement
-          HTMLHRElement
-               HTMLModElement
-              HTMLSourceElement
-HTMLDialogElement
-           HTMLHtmlElement
-             HTMLObjectElement
-           HTMLSpanElement
-HTMLDirectoryElement
-        HTMLHyperlinkElementUtils
-   HTMLOListElement
-            HTMLStyleElement
-HTMLDivElement
-              HTMLIFrameElement
-           HTMLOptGroupElement
-         HTMLTableCaptionElement
-}
-*/
 
 #[derive(Debug)]
 pub struct Interfaces {
@@ -106,6 +32,76 @@ impl Interfaces {
         interfaces.insert("label", "HTMLLabelElement");
         interfaces.insert("input", "HTMLInputElement");
         interfaces.insert("img", "HTMLImageElement");
+/*
+TODO interfaces:
+HTMLDListElement
+HTMLOptionElement
+HTMLTableCellElement
+HTMLAnchorElement
+HTMLTableColElement
+HTMLAreaElement
+HTMLOutputElement
+HTMLTableElement
+HTMLAudioElement
+HTMLEmbedElement
+HTMLLegendElement
+HTMLParagraphElement
+HTMLTableRowElement
+HTMLBaseElement
+HTMLFieldSetElement
+HTMLLIElement
+HTMLParamElement
+HTMLTableSectionElement
+HTMLBodyElement
+HTMLFontElement
+HTMLLinkElement
+HTMLPictureElement
+HTMLTemplateElement
+HTMLBRElement
+HTMLMapElement
+HTMLPreElement
+HTMLTextAreaElement
+HTMLButtonElement
+HTMLFormElement
+HTMLMediaElement
+HTMLProgressElement
+HTMLTimeElement
+HTMLCanvasElement
+HTMLFrameElement
+HTMLMenuElement
+HTMLQuoteElement
+HTMLTitleElement
+HTMLCollection
+HTMLFrameSetElement
+HTMLMenuItemElement
+HTMLScriptElement
+HTMLTrackElement
+HTMLDataElement
+HTMLHeadElement
+HTMLMetaElement
+HTMLSelectElement
+HTMLUListElement
+HTMLDataListElement
+HTMLHeadingElement
+HTMLMeterElement
+HTMLSlotElement
+HTMLVideoElement
+HTMLDetailsElement
+HTMLHRElement
+HTMLModElement
+HTMLSourceElement
+HTMLDialogElement
+HTMLHtmlElement
+HTMLObjectElement
+HTMLSpanElement
+HTMLDirectoryElement
+HTMLHyperlinkElementUtils
+HTMLOListElement
+HTMLStyleElement
+HTMLIFrameElement
+HTMLOptGroupElement
+HTMLTableCaptionElement
+*/
         interfaces
     }
 
@@ -257,6 +253,7 @@ impl Interfaces {
     pub fn get_interface_code(&self, interface_name: &str) -> String {
         let mut tokens = TokenStream::new();
         let mut fields = vec![];
+        let mut other_interface = quote!{};
         let interface_calls =
             self.method_calls(interface_name, Ident::new("html_el", Span::call_site()));
         let main_interface_calls =
@@ -269,6 +266,14 @@ impl Interfaces {
             }
         }
         if interface_name != "HTMLElement" {
+            let other_interface_calls =
+                self.method_calls("HTMLElement", Ident::new("html_el", Span::call_site()));
+            other_interface = quote!{
+              let dyn_el: Option<&web_sys::HtmlElement> = wasm_bindgen::JsCast::dyn_ref(&el);
+              dyn_el.map(|html_el| {
+                  #(#other_interface_calls)*
+              });
+            };
             if let Some(methods) = self.data.get("HTMLElement") {
                 for field in methods {
                     let field_ident = Ident::new(field, Span::call_site());
@@ -300,8 +305,12 @@ impl Interfaces {
           }
           impl Attributish for #interface_ident {
               fn flush(&self, el: web_sys::Element) -> web_sys::Element {
+                // TODO this inheritance tree should be defined from the parsed webidl
                 {
                   #interface
+                }
+                {
+                  #other_interface
                 }
                 #(#main_interface_calls)*
                 el
