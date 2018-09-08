@@ -104,6 +104,7 @@ impl Interfaces {
         let mut interfaces = HashMap::new();
         interfaces.insert("div", "HTMLDivElement");
         interfaces.insert("label", "HTMLLabelElement");
+        interfaces.insert("input", "HTMLInputElement");
         interfaces.insert("img", "HTMLImageElement");
         interfaces
     }
@@ -134,8 +135,16 @@ impl Interfaces {
                         // TODO set more types here, booleans etc
                         if let weedle::interface::InterfaceMember::Attribute(a) = attr {
                             if a.readonly.is_none() {
-                                if let Single(NonAny(DOMString(_))) = a.type_.type_ {
+                                if let Single(NonAny(DOMString(t))) = a.type_.type_ {
                                     println!("a: {:#?}", a);
+                                    if t.q_mark != None {
+                                        // TODO handle optionals
+                                        continue;
+                                    }
+                                    // TODO handle native naming
+                                    if (a.identifier.0 == "type") {
+                                        continue;
+                                    }
                                     let name = String::from(a.identifier.0).to_snake_case();
                                     setters.push(name);
                                 }
@@ -146,6 +155,8 @@ impl Interfaces {
                 }
             }
         });
+        // TODO remove this
+        //panic!("{:?}", interfaces);
 
         Ok(Interfaces { data: interfaces })
     }
@@ -171,11 +182,12 @@ impl Interfaces {
                 let setter = Ident::new(&set_name, Span::call_site());
                 interface_calls.push(quote!{
                     if let Some(ref field) = self.#field_ident {
-                       #el.#setter(field.clone().into());
+                       #el.#setter(&field.clone());
                     }
                 });
             }
         }
+        println!("iface {:?}", interface_calls);
         interface_calls
     }
 
@@ -187,58 +199,40 @@ impl Interfaces {
             let tag_string = String::from(tag.clone());
             let tag_ident = Ident::new(&tag_string, Span::call_site());
             let interface_name = Ident::new(&format!("{}Attributes", interface), Span::call_site());
-println!("{}, {}", tag_string, interface_name);
+            println!("{}, {}", tag_string, interface_name);
             arms.push(quote!{
-                #tag_string => {
-/*
-                     Ifi::#tag_ident(#interface_name {
-                    // HtmlAttributes {
-                    // HTMLElementAttributes {
-                         $( $key: Some($value.into()), )*
-                         ..Default::default()
-                     })
-*/
-                                 let attrs = #interface_name {
-                                 //let attrs = HTMLElementAttributes {
-                                     $( $key: Some($value.into()), )*
-                                     ..Default::default()
-                                 };
-                                 let el_container = El {
-                                     name: $name.into(),
-                                     attrs
-                                 };
-                                 el_container
-                 },
-             });
-         }
-        
-        
-        (quote!{
-// TODO generate
-pub enum Ifi {
-  div(HTMLDivElementAttributes),
-  label(HTMLLabelElementAttributes),
-  img(HTMLImageElementAttributes)
-}
+               (#tag_string, {$( $key:ident : $value:expr ),*}) => {
+                   {
+                       let attrs = #interface_name {
+                       //let attrs = HTMLElementAttributes {
+                           $( $key: Some($value.into()), )*
+                           ..Default::default()
+                       };
+                       let el_container = El {
+                           name: #tag_string.to_string(),
+                           attrs
+                       };
+                       el_container
+                   }
+               };
+            });
+        }
 
+        (quote!{
             #[macro_export]
             macro_rules! create_element {
+                #(#arms)*
                 ($name:tt, {$( $key:ident : $value:expr ),*}) => {
                     {
-                        match $name {
-                             //#(#arms)*
-                             _ => {
-                                 let attrs = HTMLElementAttributes {
-                                     $( $key: Some($value.into()), )*
-                                     ..Default::default()
-                                 };
-                                 let el_container = El {
-                                     name: $name.into(),
-                                     attrs
-                                 };
-                                 el_container
-                             }
-                        }
+                        let attrs = HTMLElementAttributes {
+                            $( $key: Some($value.into()), )*
+                            ..Default::default()
+                        };
+                        let el_container = El {
+                            name: $name.into(),
+                            attrs
+                        };
+                        el_container
                     }
                 }
             }
@@ -256,7 +250,7 @@ pub enum Ifi {
     }
 
     pub fn get_interface_name(&self, interface_name: &str) -> String {
-      String::from(interface_name).replace("HTML", "Html")
+        String::from(interface_name).replace("HTML", "Html")
     }
 
     //TODO neaten

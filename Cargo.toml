@@ -22,4 +22,4 @@ weedle = "0.6"
 element_macro_derive = { path = "crates/element_macro_derive" }
 attribute_macro_derive = { path = "crates/attribute_macro_derive" }
 wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement'] }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement'] }

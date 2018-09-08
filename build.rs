@@ -5,12 +5,11 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use parser::{Interfaces};
+use parser::Interfaces;
 extern crate failure;
 use failure::ResultExt;
 
-
-fn main() -> Result<(),failure::Error> {
+fn main() -> Result<(), failure::Error> {
     let out_dir = env::var("OUT_DIR").context("reading OUT_DIR environment variable")?;
     let interfaces = Interfaces::parse().unwrap();
     let dest_path = Path::new(&out_dir).join("bindings.rs");

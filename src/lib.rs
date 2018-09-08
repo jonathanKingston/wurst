@@ -6,53 +6,6 @@ extern crate wasm_bindgen;
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-/*
-#[macro_export]
-macro_rules! create_element {
-    ($name:tt, {$( $key:ident : $value:expr ),*}) => {
-        {
-/*
-            #[derive(Attributish)]
-            struct MyAttrs {
-                $( $key: String, )*
-            };
-
-            let attrs = MyAttrs {
-                $( $key: $value.into(), )*
-            };
-*/
-            #[derive(AttributishTwo)]
-            struct MyAttrs {
-                attrs: Option<T>,
-                $( $key: String, )*
-            };
-            let attrs2 = MyAttrs::create();
-
-/*
-            let attrs2 = MyAttrs {
-                attrs: None,
-                $( $key: $value.into(), )*
-            };
-*/
-
-/*
-let attrs2 = HtmlAttributes {
-    $( $key: Some($value.into()), )*
-    ..Default::default()
-};
-*/
-
-            let el_container = El {
-                name: $name.into(),
-                //attrs
-                attrs: attrs2
-            };
-            el_container
-        }
-    }
-}
-*/
-
 pub struct El<A> {
     pub name: String,
     pub attrs: A
