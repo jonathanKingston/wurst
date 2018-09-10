@@ -11,27 +11,33 @@ extern crate web_sys;
 
 #[wasm_bindgen]
 pub fn make() {
-    let mut eli = create_element!("div", {
+    let mut div = create_element!("div", {
         // Element interface
         id: "Boop",
+
         // HTMLElement interface
         title: "hey I am a title",
-        lang: "boom",
+        lang: "en-GB"
     });
-    eli.create();
-    eli.add_to_body();
+    div.create();
+    div.add_to_body();
 
-    let mut eli = create_element!("input", {
+    let mut input = create_element!("input", {
         // Element interface
         id: "Boop",
+
         // Input interface
-        value: "hyyyyy",
+        value: "hey!",
+
         // HTMLElement interface
         title: "2323",
         lang: "boom"
     });
-    eli.create();
-    eli.add_to_body();
+    input.create();
+    input.add_to_body();
+
+    input.attrs.id = Some("boo".into());
+    input.update();
 }
 
 fn main() {}
