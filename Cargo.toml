@@ -11,10 +11,11 @@ repository = "https://github.com/jonathanKingston/wurst"
 
 members = [
     "crates/parser",
+    "crates/codegen",
 ]
 
 [build-dependencies]
-parser = { path = "crates/parser", version = "0.1" }
+codegen = { path = "crates/codegen", version = "0.1" }
 sourcefile = "0.1"
 failure = "0.1.2"
 weedle = "0.6"
