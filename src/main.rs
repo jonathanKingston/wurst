@@ -1,7 +1,8 @@
 #[macro_use]
 extern crate wurst;
 // TODO generate a prelude
-use wurst::{Attributish, El, HTMLElementAttributes, HTMLDivElementAttributes, HTMLImageElementAttributes, HTMLInputElementAttributes, HTMLLabelElementAttributes};
+use wurst::{Attributish, El};
+use wurst::attr::*;
 
 extern crate wasm_bindgen;
 use wasm_bindgen::prelude::*;
@@ -14,8 +15,8 @@ pub fn make() {
         // Element interface
         id: "Boop",
         // HTMLElement interface
-        title: "2323",
-        lang: "boom"
+        title: "hey I am a title",
+        lang: "boom",
     });
     eli.create();
     eli.add_to_body();

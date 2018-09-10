@@ -18,7 +18,9 @@ fn main() -> Result<(), failure::Error> {
     // Code generating this macro because I can't find a way to make generics to line up for passing in an optional attribute holder whilst then calling methods on it in the containing structure
     write!(f, "{}", interfaces.get_macro());
 
+    write!(f, "{}", "pub mod attr { pub use Attributish;");
     write!(f, "{}", interfaces.get_interfaces_code());
     write!(f, "{}", interfaces.get_interface_code("HTMLElement"));
+    write!(f, "{}", "}");
     Ok(())
 }

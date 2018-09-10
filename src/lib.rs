@@ -1,3 +1,4 @@
+#![feature(extern_prelude)]
 extern crate web_sys;
 extern crate wasm_bindgen;
 

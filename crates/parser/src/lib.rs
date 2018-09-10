@@ -200,7 +200,6 @@ HTMLTableCaptionElement
                (#tag_string, {$( $key:ident : $value:expr ),*}) => {
                    {
                        let attrs = #interface_name {
-                       //let attrs = HTMLElementAttributes {
                            $( $key: Some($value.into()), )*
                            ..Default::default()
                        };
