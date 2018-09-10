@@ -1,8 +1,11 @@
 [package]
 name = "wurst"
+description = "Webby UI Rust abstraction"
+license = "MIT"
 version = "0.1.0"
 authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
 build = "build.rs"
+repository = "https://github.com/jonathanKingston/wurst"
 
 [workspace]
 
@@ -11,7 +14,7 @@ members = [
 ]
 
 [build-dependencies]
-parser = { path = "crates/parser" }
+parser = { path = "crates/parser", version = "0.1" }
 sourcefile = "0.1"
 failure = "0.1.2"
 weedle = "0.6"

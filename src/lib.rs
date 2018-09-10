@@ -18,6 +18,11 @@ impl <A: Attributish> El<A> {
         let el = self.attrs.flush(el);
         self.el = Some(el);
     }
+    pub fn update(&mut self) {
+        self.el = self.el.take().map(|e| {
+            self.attrs.flush(e)
+        });
+    }
     // Helper just to append to dom
     pub fn add_to_body(&mut self) {
         let maybe_el = self.el.take();
