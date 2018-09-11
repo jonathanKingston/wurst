@@ -34,10 +34,11 @@ pub fn make() {
         lang: "boom"
     });
     input.create();
-    input.add_to_body();
 
     input.attrs.id = Some("boo".into());
     input.update();
+
+    div.append(input);
 }
 
 fn main() {}
