@@ -22,4 +22,4 @@ weedle = "0.6"
 
 [dependencies]
 wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement'] }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement', 'HtmlFormElement', 'HtmlTitleElement', 'HtmlBodyElement', 'HtmlHeadElement', 'HtmlMetaElement', 'HtmlButtonElement', 'HtmlTextAreaElement', 'HtmlSelectElement', 'HtmlBrElement', 'HtmlUListElement', 'HtmlOListElement', 'HtmlLiElement', 'HtmlHrElement', 'HtmlDListElement', 'HtmlOptionElement', 'HtmlCanvasElement', 'HtmlPreElement', 'HtmlFieldSetElement', 'HtmlSpanElement', 'HtmlParagraphElement', 'HtmlHtmlElement', 'HtmlFontElement'] }

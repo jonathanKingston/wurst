@@ -26,10 +26,30 @@ impl Interfaces {
         interfaces.insert("label", "HTMLLabelElement");
         interfaces.insert("input", "HTMLInputElement");
         interfaces.insert("img", "HTMLImageElement");
+        interfaces.insert("form", "HTMLFormElement");
+        interfaces.insert("title", "HTMLTitleElement");
+        interfaces.insert("body", "HTMLBodyElement");
+        interfaces.insert("head", "HTMLHeadElement");
+        interfaces.insert("meta", "HTMLMetaElement");
+        interfaces.insert("button", "HTMLButtonElement");
+        interfaces.insert("textarea", "HTMLTextAreaElement");
+        interfaces.insert("select", "HTMLSelectElement");
+        interfaces.insert("br", "HTMLBrElement");
+        interfaces.insert("hr", "HTMLHrElement");
+        interfaces.insert("ul", "HTMLUListElement");
+        interfaces.insert("ol", "HTMLOListElement");
+        interfaces.insert("li", "HTMLLiElement");
+        interfaces.insert("dl", "HTMLDListElement");
+        interfaces.insert("option", "HTMLOptionElement");
+        interfaces.insert("canvas", "HTMLCanvasElement");
+        interfaces.insert("pre", "HTMLPreElement");
+        interfaces.insert("fieldset", "HTMLFieldSetElement");
+        interfaces.insert("span", "HTMLSpanElement");
+        interfaces.insert("p", "HTMLParagraphElement");
+        interfaces.insert("html", "HTMLHtmlElement");
+        interfaces.insert("font", "HTMLFontElement");
 /*
 TODO interfaces:
-HTMLDListElement
-HTMLOptionElement
 HTMLTableCellElement
 HTMLAnchorElement
 HTMLTableColElement
@@ -39,58 +59,37 @@ HTMLTableElement
 HTMLAudioElement
 HTMLEmbedElement
 HTMLLegendElement
-HTMLParagraphElement
 HTMLTableRowElement
 HTMLBaseElement
-HTMLFieldSetElement
-HTMLLIElement
 HTMLParamElement
 HTMLTableSectionElement
-HTMLBodyElement
 HTMLFontElement
 HTMLLinkElement
 HTMLPictureElement
 HTMLTemplateElement
-HTMLBRElement
 HTMLMapElement
-HTMLPreElement
-HTMLTextAreaElement
-HTMLButtonElement
-HTMLFormElement
 HTMLMediaElement
 HTMLProgressElement
 HTMLTimeElement
-HTMLCanvasElement
 HTMLFrameElement
 HTMLMenuElement
 HTMLQuoteElement
-HTMLTitleElement
-HTMLCollection
 HTMLFrameSetElement
 HTMLMenuItemElement
 HTMLScriptElement
 HTMLTrackElement
 HTMLDataElement
-HTMLHeadElement
-HTMLMetaElement
-HTMLSelectElement
-HTMLUListElement
 HTMLDataListElement
 HTMLHeadingElement
 HTMLMeterElement
 HTMLSlotElement
 HTMLVideoElement
 HTMLDetailsElement
-HTMLHRElement
 HTMLModElement
 HTMLSourceElement
 HTMLDialogElement
-HTMLHtmlElement
 HTMLObjectElement
-HTMLSpanElement
 HTMLDirectoryElement
-HTMLHyperlinkElementUtils
-HTMLOListElement
 HTMLStyleElement
 HTMLIFrameElement
 HTMLOptGroupElement
