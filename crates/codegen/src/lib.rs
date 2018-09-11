@@ -38,16 +38,22 @@ impl Codegen {
 
     pub fn get_macro(&self) -> proc_macro2::TokenStream {
         let mut arms = vec![];
-        for (tag, interface) in &self.interfaces.tag_interfaces() {
-            let tag_string = String::from(tag.clone());
-            let tag_ident = Ident::new(&tag_string, Span::call_site());
+        let mut macro_interfaces: Vec<(&str, &str)> = self.interfaces.tag_interfaces().into_iter().collect();
+        // Fallback for non named tags
+        macro_interfaces.push(("$name".into(), "HTMLElementAttributes".into()));
+        for (tag, interface) in macro_interfaces {
+            let mut tag_string = quote!{#tag};
+            let mut match_name = tag_string.clone();
+            if let "$name" = tag {
+                tag_string = quote!{$name};
+                match_name = quote!{$name:tt};
+            };
             let interface_name = Ident::new(
                 &Codegen::get_wurst_interface_name(interface),
                 Span::call_site(),
             );
-            println!("{}, {}", tag_string, interface_name);
             arms.push(quote!{
-               (#tag_string, {$( $key:ident : $value:expr ),*}) => {
+               (#match_name, {$( $key:ident : $value:expr ),*}) => {
                    {
                        let attrs = #interface_name {
                            $( $key: Some($value.into()), )*
@@ -55,7 +61,7 @@ impl Codegen {
                        };
                        let el_container = El {
                            el: None,
-                           name: #tag_string.to_string(),
+                           name: #tag_string.into(),
                            attrs,
                            body: vec![],
                        };
@@ -69,34 +75,33 @@ impl Codegen {
             #[macro_export]
             macro_rules! create_element {
                 #(#arms)*
-                ($name:tt, {$( $key:ident : $value:expr ),*}) => {
-                    {
-                        let attrs = HTMLElementAttributes {
-                            $( $key: Some($value.into()), )*
-                            ..Default::default()
-                        };
-                        let el_container = El {
-                            el: None,
-                            name: $name.into(),
-                            attrs,
-                            body: vec![],
-                        };
-                        el_container
-                    }
-                }
             }
         })
+    }
+
+    fn enum_variant_from_tag_name(s: &str) -> String {
+        let mut c = s.chars();
+        match c.next() {
+            None => panic!("enum variant can't be blank"),
+            Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+        }
     }
 
     pub fn get_enum_code(&self) -> proc_macro2::TokenStream {
         let mut interfaces = vec![];
         let mut froms = vec![];
-        for (tag, interface) in &self.interfaces.tag_interfaces() {
+        let mut enum_interfaces = self.interfaces.tag_interfaces().clone();
+        // TODO why is generic here breaking the code?! conflicting implementation error
+        // enum_interfaces.insert("GenericEl", "HTMLElementAttributes");
+        for (tag, interface) in enum_interfaces {
             let ident = Ident::new(
                 &Codegen::get_wurst_interface_name(interface),
                 Span::call_site(),
             );
-            let tag_ident = Ident::new(tag, Span::call_site());
+            let tag_ident = Ident::new(
+                &Codegen::enum_variant_from_tag_name(tag),
+                Span::call_site()
+            );
             interfaces.push(quote!{
                 #tag_ident(El<#ident>),
             });
@@ -111,14 +116,8 @@ impl Codegen {
         quote!{
             pub enum interface_type {
                 #(#interfaces)*
-                el(El<HTMLElementAttributes>)
             }
             #(#froms)*
-                impl From<El<HTMLElementAttributes>> for interface_type {
-                    fn from(t: El<HTMLElementAttributes>) -> Self {
-                        interface_type::el(t)
-                    }
-                }
         }
     }
 
