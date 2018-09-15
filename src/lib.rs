@@ -8,7 +8,7 @@ pub struct El<A> {
     pub el: Option<web_sys::Element>,
     pub name: String,
     pub attrs: A,
-    pub body: Vec<Box<attr::interface_type>>,
+    pub body: Vec<Box<attr::InterfaceType>>,
 }
 
 impl<A: Attributish> El<A> {
@@ -27,7 +27,7 @@ impl<A: Attributish> El<A> {
     pub fn append<T>(&mut self, mut child: El<T>)
     //TODO fix this bound?
     where
-        attr::interface_type: std::convert::From<El<T>>,
+        attr::InterfaceType: std::convert::From<El<T>>,
     {
         let maybe_el = self.el.take();
         if let Some(el) = maybe_el {
@@ -43,7 +43,7 @@ impl<A: Attributish> El<A> {
                     wasm_bindgen::JsCast::dyn_into(child_el);
                 dyn_child_el.map(|child_el| {
                     child.el = Some(child_el);
-                    let child_interface: attr::interface_type = child.into();
+                    let child_interface: attr::InterfaceType = child.into();
                     self.body.push(Box::new(child_interface));
                 });
             }

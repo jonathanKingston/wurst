@@ -106,15 +106,15 @@ impl Codegen {
                 #tag_ident(El<#ident>),
             });
             froms.push(quote!{
-                impl From<El<#ident>> for interface_type {
+                impl From<El<#ident>> for InterfaceType {
                     fn from(t: El<#ident>) -> Self {
-                        interface_type::#tag_ident(t)
+                        InterfaceType::#tag_ident(t)
                     }
                 }
             });
         }
         quote!{
-            pub enum interface_type {
+            pub enum InterfaceType {
                 #(#interfaces)*
             }
             #(#froms)*
