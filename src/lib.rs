@@ -23,11 +23,11 @@ impl<A: Attributish> El<A> {
     pub fn update(&mut self) {
         self.el = self.el.take().map(|e| self.attrs.flush(e));
     }
+
     // TODO simplify this method by storing elements as nodes.
     pub fn append<T>(&mut self, mut child: El<T>)
-    //TODO fix this bound?
     where
-        attr::InterfaceType: std::convert::From<El<T>>,
+        attr::InterfaceType: From<El<T>>,
     {
         let maybe_el = self.el.take();
         if let Some(el) = maybe_el {
