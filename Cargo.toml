@@ -1,21 +1,26 @@
 [package]
 name = "wurst"
+description = "Webby UI Rust abstraction"
+license = "MIT OR Apache-2.0"
 version = "0.1.0"
 authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
 build = "build.rs"
+repository = "https://github.com/jonathanKingston/wurst"
 
 [workspace]
 
 members = [
     "crates/parser",
+    "crates/codegen",
+    "examples/dom",
 ]
 
 [build-dependencies]
-parser = { path = "crates/parser" }
+codegen = { path = "crates/codegen", version = "0.1" }
 sourcefile = "0.1"
 failure = "0.1.2"
 weedle = "0.6"
 
 [dependencies]
 wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement'] }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement', 'HtmlFormElement', 'HtmlTitleElement', 'HtmlBodyElement', 'HtmlHeadElement', 'HtmlMetaElement', 'HtmlButtonElement', 'HtmlTextAreaElement', 'HtmlSelectElement', 'HtmlBrElement', 'HtmlUListElement', 'HtmlOListElement', 'HtmlLiElement', 'HtmlHrElement', 'HtmlDListElement', 'HtmlOptionElement', 'HtmlCanvasElement', 'HtmlPreElement', 'HtmlFieldSetElement', 'HtmlSpanElement', 'HtmlParagraphElement', 'HtmlHtmlElement', 'HtmlFontElement'] }
