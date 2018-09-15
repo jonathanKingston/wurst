@@ -106,15 +106,15 @@ impl Codegen {
                 #tag_ident(El<#ident>),
             });
             froms.push(quote!{
-                impl From<El<#ident>> for interface_type {
+                impl From<El<#ident>> for InterfaceType {
                     fn from(t: El<#ident>) -> Self {
-                        interface_type::#tag_ident(t)
+                        InterfaceType::#tag_ident(t)
                     }
                 }
             });
         }
         quote!{
-            pub enum interface_type {
+            pub enum InterfaceType {
                 #(#interfaces)*
             }
             #(#froms)*
@@ -146,41 +146,41 @@ impl Codegen {
         }
     }
 
-    //TODO neaten
-    pub fn get_interface_code(&self, interface_name: &str) -> proc_macro2::TokenStream {
-        let mut tokens = TokenStream::new();
-        let mut fields = vec![];
-        let mut other_interface = quote!{};
+    // Given an `interface_name` like `HTMLDivElement` append all the attribute names to the structs fields
+    // Also construct the dyn_ref interface which will call `set_<attr_name>` when flush is called.
+    pub fn add_interface(&self, interface_name: &str, fields: &mut Vec<proc_macro2::TokenStream>, interfaces: &mut Vec<proc_macro2::TokenStream>) {
+        let code_interface_name = Ident::new(&Codegen::get_element_interface_name(interface_name), Span::call_site());
         let interface_calls =
-            self.method_calls(interface_name, Ident::new("html_el", Span::call_site()));
-        let main_interface_calls =
-            self.method_calls("Element", Ident::new("el", Span::call_site()));
+            self.method_calls(interface_name, Ident::new("iface_el", Span::call_site()));
+        interfaces.push(quote!{
+            {
+                let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
+                dyn_el.map(|iface_el| {
+                    #(#interface_calls)*
+                });
+            }
+        });
+        self.fields(interface_name, fields);
+    }
 
-        self.fields(interface_name, &mut fields);
+    pub fn get_interface_code(&self, interface_name: &str) -> proc_macro2::TokenStream {
+        let mut fields = vec![];
+        let mut interfaces = vec![];
+
+        // Construct an artificial stack of interfaces that we call based on the attributes we have
+        self.add_interface(interface_name, &mut fields, &mut interfaces);
 
         if interface_name != "HTMLElement" {
-            let other_interface_calls =
-                self.method_calls("HTMLElement", Ident::new("html_el", Span::call_site()));
-            other_interface = quote!{
-              let dyn_el: Option<&web_sys::HtmlElement> = wasm_bindgen::JsCast::dyn_ref(&el);
-              dyn_el.map(|html_el| {
-                  #(#other_interface_calls)*
-              });
-            };
-            self.fields("HTMLElement", &mut fields);
+            self.add_interface("HTMLElement", &mut fields, &mut interfaces);
         }
-        self.fields("Element", &mut fields);
+        if interface_name != "Element" {
+            self.add_interface("Element", &mut fields, &mut interfaces);
+        }
         let web_sys_ident = Ident::new(
             &Codegen::get_element_interface_name(interface_name),
             Span::call_site(),
         );
 
-        let interface = quote!{
-          let dyn_el: Option<&web_sys::#web_sys_ident> = wasm_bindgen::JsCast::dyn_ref(&el);
-          dyn_el.map(|html_el| {
-              #(#interface_calls)*
-          });
-        };
         let interface_name = Codegen::get_wurst_interface_name(interface_name);
         let interface_ident = Ident::new(&interface_name, Span::call_site());
 
@@ -190,15 +190,9 @@ impl Codegen {
               #(#fields)*
           }
           impl Attributish for #interface_ident {
-              fn flush(&self, el: web_sys::Element) -> web_sys::Element {
+              fn flush(&self, el: web_sys::Node) -> web_sys::Node {
                 // TODO this inheritance tree should be defined from the parsed webidl
-                {
-                  #interface
-                }
-                {
-                  #other_interface
-                }
-                #(#main_interface_calls)*
+                #(#interfaces)*
                 el
               }
           }
