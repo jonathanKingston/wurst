@@ -12,6 +12,7 @@ repository = "https://github.com/jonathanKingston/wurst"
 members = [
     "crates/parser",
     "crates/codegen",
+    "examples/dom",
 ]
 
 [build-dependencies]
