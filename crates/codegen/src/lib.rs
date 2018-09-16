@@ -40,7 +40,7 @@ impl Codegen {
         let mut arms = vec![];
         let mut macro_interfaces: Vec<(&str, &str)> = self.interfaces.tag_interfaces().into_iter().collect();
         // Fallback for non named tags
-        macro_interfaces.push(("$name".into(), "HTMLElementAttributes".into()));
+        macro_interfaces.push(("$name".into(), "HTMLElementish".into()));
         for (tag, interface) in macro_interfaces {
             let mut tag_string = quote!{#tag};
             let mut match_name = tag_string.clone();
@@ -55,14 +55,15 @@ impl Codegen {
             arms.push(quote!{
                (#match_name, {$( $key:ident : $value:expr ),*}) => {
                    {
-                       let attrs = #interface_name {
+                       let el = #interface_name {
+                           _node: None,
                            $( $key: Some($value.into()), )*
                            ..Default::default()
                        };
                        let el_container = El {
-                           el: None,
+                           dom_node: None,
                            name: #tag_string.into(),
-                           attrs,
+                           el: Some(el),
                            body: vec![],
                        };
                        el_container
@@ -90,9 +91,9 @@ impl Codegen {
     pub fn get_enum_code(&self) -> proc_macro2::TokenStream {
         let mut interfaces = vec![];
         let mut froms = vec![];
-        let mut enum_interfaces = self.interfaces.tag_interfaces().clone();
+        let enum_interfaces = self.interfaces.tag_interfaces().clone();
         // TODO why is generic here breaking the code?! conflicting implementation error
-        // enum_interfaces.insert("GenericEl", "HTMLElementAttributes");
+        // enum_interfaces.insert("GenericEl", "HTMLElementish");
         for (tag, interface) in enum_interfaces {
             let ident = Ident::new(
                 &Codegen::get_wurst_interface_name(interface),
@@ -134,7 +135,7 @@ impl Codegen {
     }
 
     pub fn get_wurst_interface_name(interface_name: &str) -> String {
-        format!("{}Attributes", interface_name)
+        format!("{}ish", interface_name)
     }
 
     pub fn fields(&self, interface_name: &str, fields: &mut Vec<proc_macro2::TokenStream>) {
@@ -163,6 +164,28 @@ impl Codegen {
         self.fields(interface_name, fields);
     }
 
+    pub fn get_other_methods(&self, interface_name: &str) -> proc_macro2::TokenStream {
+        let mut body = quote!{};
+        let interface_ident = Ident::new(&interface_name, Span::call_site());
+
+        if (interface_name == "HTMLInputElementish") {
+            // TODO save me from this hardcoded lifestyle
+            body = quote!{
+                /* Example function interface
+                pub fn boop(&self) {
+                    let me  = wasm_bindgen::JsValue::from_str("boop");
+                    web_sys::console::log_1(&me);
+                }*/
+            };
+        }
+
+        quote!{
+            impl #interface_ident {
+                #body
+            }
+        }
+    }
+
     pub fn get_interface_code(&self, interface_name: &str) -> proc_macro2::TokenStream {
         let mut fields = vec![];
         let mut interfaces = vec![];
@@ -176,27 +199,33 @@ impl Codegen {
         if interface_name != "Element" {
             self.add_interface("Element", &mut fields, &mut interfaces);
         }
-        let web_sys_ident = Ident::new(
-            &Codegen::get_element_interface_name(interface_name),
-            Span::call_site(),
-        );
 
         let interface_name = Codegen::get_wurst_interface_name(interface_name);
         let interface_ident = Ident::new(&interface_name, Span::call_site());
 
-        (quote!{
-          #[derive(Default)]
-          pub struct #interface_ident {
-              #(#fields)*
-          }
-          impl Attributish for #interface_ident {
-              fn flush(&self, el: web_sys::Node) -> web_sys::Node {
-                // TODO this inheritance tree should be defined from the parsed webidl
-                #(#interfaces)*
-                el
-              }
-          }
-        })
+        let other_methods = self.get_other_methods(&interface_name);
+
+        quote!{
+            #[derive(Default)]
+            pub struct #interface_ident {
+                pub _node: Option<web_sys::Node>,
+                #(#fields)*
+            }
+            #other_methods
+            impl Elementish for #interface_ident {
+                fn take_node(&mut self) -> Option<web_sys::Node> {
+                    self._node.take()
+                }
+                fn set_node(&mut self, node: web_sys::Node) {
+                    self._node = Some(node)
+                }
+                fn flush(&self, el: web_sys::Node) -> web_sys::Node {
+                    // TODO this inheritance tree should be defined from the parsed webidl
+                    #(#interfaces)*
+                    el
+                }
+            }
+        }
     }
 
     pub fn get_code(&self) -> String {
@@ -210,7 +239,7 @@ impl Codegen {
             #macro_code
 
             pub mod attr {
-                pub use Attributish;
+                pub use Elementish;
                 pub use El;
                 #enum_code
 
