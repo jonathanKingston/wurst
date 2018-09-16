@@ -51,7 +51,7 @@ impl<A: Elementish> El<A> {
     }
 
     /// Public interface that exposes concrete `Elementish` impl
-    pub fn do_this<T>(&mut self, callback: T)
+    pub fn map<T>(&mut self, callback: T)
     where
         T: Fn(A) -> A {
         // TODO do something more graceful here for no el like creating one
@@ -79,4 +79,23 @@ pub trait Elementish {
     fn take_node(&mut self) -> Option<web_sys::Node>;
     fn set_node(&mut self, node: web_sys::Node);
     fn flush(&self, el: web_sys::Node) -> web_sys::Node;
+}
+
+// TODO handle value types better
+// TODO handle up to n input types
+#[macro_export]
+macro_rules! console_log {
+    ($arg:tt) => {
+        {
+            let me  = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg));
+            web_sys::console::log_1(&me);
+        }
+    };
+    ($arg:tt, $arg2:tt) => {
+        {
+            let me  = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg));
+            let me2 = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg2));
+            web_sys::console::log_2(&me, &me2);
+        }
+    }
 }
