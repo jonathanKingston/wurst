@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate wurst;
 // TODO generate a prelude
-use wurst::{Attributish, El};
+use wurst::{Elementish, El};
 use wurst::attr::*;
 
 extern crate wasm_bindgen;
@@ -34,9 +34,15 @@ pub fn make() {
         lang: "boom"
     });
     input.create();
+    /* Example function interface
+    input.do_this(|el| {
+        el.boop();
+        el
+    });
+    */
 
-    input.attrs.id = Some("boo".into());
-    input.update();
+    //input.el.id = Some("boo".into());
+    //input.update();
 
     div.append(input);
 }
