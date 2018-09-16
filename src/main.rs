@@ -34,17 +34,29 @@ pub fn make() {
         lang: "boom"
     });
     input.create();
-    /* Example function interface
-    input.do_this(|el| {
-        el.boop();
+    input.do_this(|mut el| {
+        let v = el.has_child_nodes();
+        let me  = wasm_bindgen::JsValue::from_str(&format!("Input has children: {:?}", v));
+        web_sys::console::log_1(&me);
+
+        let v = el.check_validity();
+        let me  = wasm_bindgen::JsValue::from_str(&format!("Input is valid: {:?}", v));
+        web_sys::console::log_1(&me);
+
+        el.id = Some("boo".into());
         el
     });
-    */
-
-    //input.el.id = Some("boo".into());
-    //input.update();
+    input.update();
 
     div.append(input);
+
+    div.do_this(|mut el| {
+        let v = el.has_child_nodes();
+        let me  = wasm_bindgen::JsValue::from_str(&format!("Div has children: {:?}", v));
+        web_sys::console::log_1(&me);
+
+        el
+    });
 }
 
 fn main() {}

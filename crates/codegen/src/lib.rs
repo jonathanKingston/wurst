@@ -1,3 +1,4 @@
+#![recursion_limit="128"]
 extern crate proc_macro2;
 #[macro_use]
 extern crate quote;
@@ -165,22 +166,37 @@ impl Codegen {
     }
 
     pub fn get_other_methods(&self, interface_name: &str) -> proc_macro2::TokenStream {
+        // TODO save me from this hardcoded lifestyle
         let mut body = quote!{};
-        let interface_ident = Ident::new(&interface_name, Span::call_site());
+        let code_interface_name = Ident::new(&Codegen::get_element_interface_name(interface_name), Span::call_site());
 
-        if (interface_name == "HTMLInputElementish") {
-            // TODO save me from this hardcoded lifestyle
+        if (interface_name == "HTMLInputElement") {
             body = quote!{
-                /* Example function interface
-                pub fn boop(&self) {
-                    let me  = wasm_bindgen::JsValue::from_str("boop");
-                    web_sys::console::log_1(&me);
-                }*/
+                pub fn check_validity(&mut self) -> bool {
+                    let el = self._node.take().unwrap();
+                    let mut r = {
+                        let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
+                        dyn_el.map(|iface_el| {
+                            iface_el.check_validity()
+                        }).unwrap()
+                    };
+                    self._node = Some(el);
+                    r
+                }
             };
         }
 
+        let interface_name = Codegen::get_wurst_interface_name(interface_name);
+        let interface_ident = Ident::new(&interface_name, Span::call_site());
+
         quote!{
             impl #interface_ident {
+                pub fn has_child_nodes(&mut self) -> bool {
+                    let el = self._node.take().unwrap();
+                    let r = el.has_child_nodes();
+                    self._node = Some(el);
+                    r
+                }
                 #body
             }
         }
@@ -199,11 +215,10 @@ impl Codegen {
         if interface_name != "Element" {
             self.add_interface("Element", &mut fields, &mut interfaces);
         }
+        let other_methods = self.get_other_methods(&interface_name);
 
         let interface_name = Codegen::get_wurst_interface_name(interface_name);
         let interface_ident = Ident::new(&interface_name, Span::call_site());
-
-        let other_methods = self.get_other_methods(&interface_name);
 
         quote!{
             #[derive(Default)]
