@@ -34,14 +34,12 @@ pub fn make() {
         lang: "boom"
     });
     input.create();
-    input.do_this(|mut el| {
+    input.map(|mut el| {
         let v = el.has_child_nodes();
-        let me  = wasm_bindgen::JsValue::from_str(&format!("Input has children: {:?}", v));
-        web_sys::console::log_1(&me);
+        console_log!("Input has children:", v);
 
         let v = el.check_validity();
-        let me  = wasm_bindgen::JsValue::from_str(&format!("Input is valid: {:?}", v));
-        web_sys::console::log_1(&me);
+        console_log!("Input is valid:", v);
 
         el.id = Some("boo".into());
         el
@@ -50,11 +48,9 @@ pub fn make() {
 
     div.append(input);
 
-    div.do_this(|mut el| {
+    div.map(|mut el| {
         let v = el.has_child_nodes();
-        let me  = wasm_bindgen::JsValue::from_str(&format!("Div has children: {:?}", v));
-        web_sys::console::log_1(&me);
-
+        console_log!("Div has children:", v);
         el
     });
 }
