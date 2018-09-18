@@ -1,13 +1,14 @@
 #[macro_use]
 extern crate wurst;
 // TODO generate a prelude
-use wurst::{Elementish, El};
+use wurst::{Elementish, El, OutputConsole};
 use wurst::attr::*;
 
 extern crate wasm_bindgen;
 use wasm_bindgen::prelude::*;
 
 extern crate web_sys;
+extern crate js_sys;
 
 #[wasm_bindgen]
 pub fn make() {
