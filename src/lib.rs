@@ -81,21 +81,30 @@ pub trait Elementish {
     fn flush(&self, el: web_sys::Node) -> web_sys::Node;
 }
 
-// TODO handle value types better
-// TODO handle up to n input types
-#[macro_export]
-macro_rules! console_log {
-    ($arg:tt) => {
-        {
-            let me  = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg));
-            web_sys::console::log_1(&me);
-        }
-    };
-    ($arg:tt, $arg2:tt) => {
-        {
-            let me  = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg));
-            let me2 = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg2));
-            web_sys::console::log_2(&me, &me2);
-        }
+pub trait OutputConsole {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue;
+}
+
+impl OutputConsole for bool {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from_bool(*self)
+    }
+}
+
+impl <'t> OutputConsole for &'t str {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from_str(&self)
+    }
+}
+
+impl OutputConsole for i32 {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from_str(&format!("{}", &self))
+    }
+}
+
+impl OutputConsole for isize {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from_str(&format!("{}", &self))
     }
 }

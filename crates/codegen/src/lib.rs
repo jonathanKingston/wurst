@@ -37,7 +37,50 @@ impl Codegen {
         interface_calls
     }
 
-    pub fn get_macro(&self) -> proc_macro2::TokenStream {
+    pub fn get_console_macro(&self, name: &str) -> proc_macro2::TokenStream {
+        let mut arms = vec![];
+        let macro_name = Ident::new(&format!("console_{}", name), Span::call_site());
+        let mut fn_name;
+        for i in (1..=7) {
+            fn_name = Ident::new(&format!("{}_{}", name, i), Span::call_site());
+            let mut args = vec![];
+            for j in (1..=i) {
+                args.push(Ident::new(&format!("arg{}", j), Span::call_site()));
+            }
+            let args_u = args.clone();
+            let sig = quote!{#($#args:expr),*};
+            let val = quote!{
+                (#sig) => {
+                    {
+                        web_sys::console::#fn_name(#(&$#args_u.get_js_value()),*);
+                    }
+                };
+            };
+            arms.push(val);
+        }
+        let intro = format!("Calls console.{} in the browser", name);
+        let example = format!("console_{}!(\"hey\", 1);", name);
+        fn_name = Ident::new(&format!("{}", name), Span::call_site());
+        quote!{
+            #[doc=#intro]
+            /// ```
+            #[doc=#example]
+            /// ```
+            #[macro_export]
+            macro_rules! #macro_name {
+                #(#arms)*
+                ($($args:expr),*) => {
+                    {
+                        let arr = js_sys::Array::new();
+                        $( arr.push(&$args.get_js_value()); )*
+                        web_sys::console::#fn_name(&arr);
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn get_create_element_macro(&self) -> proc_macro2::TokenStream {
         let mut arms = vec![];
         let mut macro_interfaces: Vec<(&str, &str)> = self.interfaces.tag_interfaces().into_iter().collect();
         // Fallback for non named tags
@@ -245,13 +288,20 @@ impl Codegen {
 
     pub fn get_code(&self) -> String {
         let mut tokens = TokenStream::new();
-        let macro_code = self.get_macro();
+        let macro_code = self.get_create_element_macro();
+        let console_macro_code = vec![
+            self.get_console_macro("log"),
+            self.get_console_macro("debug"),
+            self.get_console_macro("error"),
+            self.get_console_macro("warn"),
+        ];
         let fallback = self.get_interface_code("HTMLElement");
         let interfaces = self.get_interfaces_code();
         let enum_code = self.get_enum_code();
         (quote!{
 
             #macro_code
+            #(#console_macro_code)*
 
             pub mod attr {
                 pub use Elementish;
