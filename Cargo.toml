@@ -1,4 +1,5 @@
 [package]
+edition = "2018"
 name = "wurst"
 description = "Webby UI Rust abstraction"
 license = "MIT OR Apache-2.0"
@@ -8,7 +9,6 @@ build = "build.rs"
 repository = "https://github.com/jonathanKingston/wurst"
 
 [workspace]
-
 members = [
     "crates/parser",
     "crates/codegen",
@@ -20,6 +20,10 @@ codegen = { path = "crates/codegen", version = "0.1" }
 sourcefile = "0.1"
 failure = "0.1.2"
 weedle = "0.6"
+
+[patch.'https://github.com/rustwasm/wasm-bindgen.git']
+wasm-bindgen = { path = "/home/jonathan/debugging/wasm-bindgen/" }
+web-sys = { path = "/home/jonathan/debugging/wasm-bindgen/crates/web-sys/" }
 
 [dependencies]
 wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }

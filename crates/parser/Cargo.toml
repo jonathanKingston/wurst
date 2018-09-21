@@ -1,4 +1,5 @@
 [package]
+edition = "2018"
 name = "parser"
 version = "0.1.0"
 authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
@@ -8,3 +9,4 @@ sourcefile = "0.1"
 failure = "0.1.2"
 weedle = "0.6"
 heck = "0.3"
+wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
