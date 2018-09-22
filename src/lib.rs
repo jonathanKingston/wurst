@@ -1,4 +1,4 @@
-#![feature(extern_prelude)]
+#![feature(tool_lints)]
 extern crate wasm_bindgen;
 extern crate web_sys;
 
@@ -13,7 +13,9 @@ pub struct El<T: Elementish> {
 
 impl<A: Elementish> El<A> {
     pub fn create(&mut self) {
-        let el = web_sys::Window::document()
+        let el = web_sys::window()
+            .unwrap()
+            .document()
             .unwrap()
             .create_element(&self.name)
             .unwrap();
@@ -53,7 +55,8 @@ impl<A: Elementish> El<A> {
     /// Public interface that exposes concrete `Elementish` impl
     pub fn map<T>(&mut self, callback: T)
     where
-        T: Fn(A) -> A {
+        T: Fn(A) -> A,
+    {
         // TODO do something more graceful here for no el like creating one
         let mut interface = self.el.take().unwrap();
         interface.set_node(self.dom_node.take().unwrap());
@@ -67,7 +70,13 @@ impl<A: Elementish> El<A> {
     pub fn add_to_body(&mut self) {
         let maybe_el = self.dom_node.take();
         if let Some(el) = maybe_el {
-            let node: web_sys::Node = web_sys::Window::document().unwrap().body().unwrap().into();
+            let node: web_sys::Node = web_sys::window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .body()
+                .unwrap()
+                .into();
             if let Ok(el) = node.append_child(&el) {
                 self.dom_node = Some(el);
             }
@@ -81,21 +90,30 @@ pub trait Elementish {
     fn flush(&self, el: web_sys::Node) -> web_sys::Node;
 }
 
-// TODO handle value types better
-// TODO handle up to n input types
-#[macro_export]
-macro_rules! console_log {
-    ($arg:tt) => {
-        {
-            let me  = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg));
-            web_sys::console::log_1(&me);
-        }
-    };
-    ($arg:tt, $arg2:tt) => {
-        {
-            let me  = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg));
-            let me2 = wasm_bindgen::JsValue::from_str(&format!("{:?}", $arg2));
-            web_sys::console::log_2(&me, &me2);
-        }
+pub trait OutputConsole {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue;
+}
+
+impl OutputConsole for bool {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from_bool(*self)
+    }
+}
+
+impl<'t> OutputConsole for &'t str {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from_str(&self)
+    }
+}
+
+impl OutputConsole for i32 {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from_str(&format!("{}", &self))
+    }
+}
+
+impl OutputConsole for isize {
+    fn get_js_value(&self) -> wasm_bindgen::JsValue {
+        wasm_bindgen::JsValue::from_str(&format!("{}", &self))
     }
 }

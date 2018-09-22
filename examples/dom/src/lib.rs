@@ -4,8 +4,8 @@ extern crate web_sys;
 
 #[macro_use]
 extern crate wurst;
-use wurst::El;
 use wurst::attr::*;
+use wurst::El;
 
 // Called by our JS entry point to run the example
 #[wasm_bindgen]
