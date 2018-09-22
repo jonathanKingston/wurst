@@ -1,4 +1,4 @@
-#![recursion_limit="128"]
+#![recursion_limit = "128"]
 extern crate proc_macro2;
 #[macro_use]
 extern crate quote;
@@ -26,9 +26,13 @@ impl Codegen {
                 let attr_name = field.to_string();
                 let set_name = "set_".to_string() + &attr_name;
                 let setter = Ident::new(&set_name, Span::call_site());
+                let setter_value = Ident::new(
+                    &format!("_{}_i_dont_care_about", set_name),
+                    Span::call_site(),
+                );
                 interface_calls.push(quote!{
                     if let Some(ref field) = self.#field_ident {
-                       #el.#setter(&field.clone());
+                       let #setter_value = #el.#setter(&field.clone());
                     }
                 });
             }
@@ -41,10 +45,10 @@ impl Codegen {
         let mut arms = vec![];
         let macro_name = Ident::new(&format!("console_{}", name), Span::call_site());
         let mut fn_name;
-        for i in (1..=7) {
+        for i in 1..=7 {
             fn_name = Ident::new(&format!("{}_{}", name, i), Span::call_site());
             let mut args = vec![];
-            for j in (1..=i) {
+            for j in 1..=i {
                 args.push(Ident::new(&format!("arg{}", j), Span::call_site()));
             }
             let args_u = args.clone();
@@ -82,7 +86,8 @@ impl Codegen {
 
     pub fn get_create_element_macro(&self) -> proc_macro2::TokenStream {
         let mut arms = vec![];
-        let mut macro_interfaces: Vec<(&str, &str)> = self.interfaces.tag_interfaces().into_iter().collect();
+        let mut macro_interfaces: Vec<(&str, &str)> =
+            self.interfaces.tag_interfaces().into_iter().collect();
         // Fallback for non named tags
         macro_interfaces.push(("$name".into(), "HTMLElementish".into()));
         for (tag, interface) in macro_interfaces {
@@ -104,7 +109,7 @@ impl Codegen {
                            $( $key: Some($value.into()), )*
                            ..Default::default()
                        };
-                       let el_container = El {
+                       let el_container = crate::El {
                            dom_node: None,
                            name: #tag_string.into(),
                            el: Some(el),
@@ -143,17 +148,15 @@ impl Codegen {
                 &Codegen::get_wurst_interface_name(interface),
                 Span::call_site(),
             );
-            let tag_ident = Ident::new(
-                &Codegen::enum_variant_from_tag_name(tag),
-                Span::call_site()
-            );
+            let tag_ident =
+                Ident::new(&Codegen::enum_variant_from_tag_name(tag), Span::call_site());
             interfaces.push(quote!{
-                #tag_ident(El<#ident>),
+                #tag_ident(Box<El<#ident>>),
             });
             froms.push(quote!{
                 impl From<El<#ident>> for InterfaceType {
                     fn from(t: El<#ident>) -> Self {
-                        InterfaceType::#tag_ident(t)
+                        InterfaceType::#tag_ident(Box::new(t))
                     }
                 }
             });
@@ -168,7 +171,7 @@ impl Codegen {
 
     pub fn get_interfaces_code(&self) -> Vec<proc_macro2::TokenStream> {
         let mut interfaces = vec![];
-        for (tag, interface) in &self.interfaces.tag_interfaces() {
+        for (_tag, interface) in &self.interfaces.tag_interfaces() {
             interfaces.push(self.get_interface_code(interface));
         }
         interfaces
@@ -193,31 +196,48 @@ impl Codegen {
 
     // Given an `interface_name` like `HTMLDivElement` append all the attribute names to the structs fields
     // Also construct the dyn_ref interface which will call `set_<attr_name>` when flush is called.
-    pub fn add_interface(&self, interface_name: &str, fields: &mut Vec<proc_macro2::TokenStream>, interfaces: &mut Vec<proc_macro2::TokenStream>) {
-        let code_interface_name = Ident::new(&Codegen::get_element_interface_name(interface_name), Span::call_site());
+    pub fn add_interface(
+        &self,
+        interface_name: &str,
+        fields: &mut Vec<proc_macro2::TokenStream>,
+        interfaces: &mut Vec<proc_macro2::TokenStream>,
+    ) {
+        let code_interface_name = Ident::new(
+            &Codegen::get_element_interface_name(interface_name),
+            Span::call_site(),
+        );
+        let flush_name = String::from(interface_name).to_lowercase() + "_flush";
+        let flush_interface_calls = Ident::new(&flush_name, Span::call_site());
         let interface_calls =
             self.method_calls(interface_name, Ident::new("iface_el", Span::call_site()));
-        interfaces.push(quote!{
-            {
-                let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
-                dyn_el.map(|iface_el| {
-                    #(#interface_calls)*
-                });
-            }
-        });
+        if interface_calls.len() > 0 {
+            interfaces.push(quote!{
+                #[allow(clippy::let_unit_value)]
+                let #flush_interface_calls = |el: &web_sys::Node| {
+                    let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&*el);
+                    if let Some(iface_el) = dyn_el {
+                        #(#interface_calls)*
+                    }
+                };
+                #flush_interface_calls(&el);
+            });
+        }
         self.fields(interface_name, fields);
     }
 
     pub fn get_other_methods(&self, interface_name: &str) -> proc_macro2::TokenStream {
         // TODO save me from this hardcoded lifestyle
         let mut body = quote!{};
-        let code_interface_name = Ident::new(&Codegen::get_element_interface_name(interface_name), Span::call_site());
+        let code_interface_name = Ident::new(
+            &Codegen::get_element_interface_name(interface_name),
+            Span::call_site(),
+        );
 
-        if (interface_name == "HTMLInputElement") {
+        if interface_name == "HTMLInputElement" {
             body = quote!{
                 pub fn check_validity(&mut self) -> bool {
                     let el = self._node.take().unwrap();
-                    let mut r = {
+                    let r = {
                         let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
                         dyn_el.map(|iface_el| {
                             iface_el.check_validity()
@@ -304,8 +324,7 @@ impl Codegen {
             #(#console_macro_code)*
 
             pub mod attr {
-                pub use Elementish;
-                pub use El;
+                pub use crate::{El, Elementish};
                 #enum_code
 
                 #(#interfaces)*

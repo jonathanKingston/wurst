@@ -10,9 +10,10 @@ use sourcefile::SourceFile;
 use std::ffi::OsStr;
 use std::fs;
 
+extern crate wasm_bindgen;
+
 extern crate heck;
 use heck::SnakeCase;
-
 
 #[derive(Debug)]
 pub struct Interfaces {
@@ -48,7 +49,7 @@ impl Interfaces {
         interfaces.insert("p", "HTMLParagraphElement");
         interfaces.insert("html", "HTMLHtmlElement");
         interfaces.insert("font", "HTMLFontElement");
-/*
+        /*
 TODO interfaces:
 HTMLTableCellElement
 HTMLAnchorElement
@@ -131,7 +132,7 @@ HTMLTableCaptionElement
                                         continue;
                                     }
                                     // TODO handle native naming
-                                    if (a.identifier.0 == "type") {
+                                    if a.identifier.0 == "type" {
                                         continue;
                                     }
                                     let name = String::from(a.identifier.0).to_snake_case();
@@ -162,7 +163,6 @@ HTMLTableCaptionElement
     }
 
     pub fn get_methods(&self, interface_name: &str) -> Option<&Vec<String>> {
-      self.data.get(interface_name)
+        self.data.get(interface_name)
     }
-
 }
