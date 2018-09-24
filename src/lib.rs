@@ -4,11 +4,11 @@ extern crate web_sys;
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-pub struct El<T: Elementish> {
+pub struct El<A: Elementish> {
     pub dom_node: Option<web_sys::Node>,
     pub name: String,
-    pub el: Option<T>,
-    pub body: Vec<Box<attr::InterfaceType>>,
+    pub el: Option<A>,
+    pub body: Vec<Box<elements::InterfaceType>>,
 }
 
 impl<A: Elementish> El<A> {
@@ -37,7 +37,7 @@ impl<A: Elementish> El<A> {
 
     pub fn append<T: Elementish>(&mut self, mut child: El<T>)
     where
-        attr::InterfaceType: From<El<T>>,
+        elements::InterfaceType: From<El<T>>,
     {
         let maybe_el = self.dom_node.take();
         if let Some(el) = maybe_el {
@@ -46,7 +46,7 @@ impl<A: Elementish> El<A> {
             if let Ok(child_el) = el.append_child(&child_node) {
                 self.dom_node = Some(el);
                 child.dom_node = Some(child_el);
-                let child_interface: attr::InterfaceType = child.into();
+                let child_interface: elements::InterfaceType = child.into();
                 self.body.push(Box::new(child_interface));
             }
         }

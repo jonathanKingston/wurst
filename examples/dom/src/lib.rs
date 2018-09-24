@@ -4,7 +4,7 @@ extern crate web_sys;
 
 #[macro_use]
 extern crate wurst;
-use wurst::attr::*;
+use wurst::elements::*;
 use wurst::El;
 
 // Called by our JS entry point to run the example
