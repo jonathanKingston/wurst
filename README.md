@@ -48,16 +48,16 @@ input.update();
 ```
 
 The above code internally will return an `El` which implements an `Elementish` field trait.
-The concrete types are `HTMLDivElementish and `HTMLInputElementish` respectively.
+The concrete types are `DivElement` and `InputElement` respectively.
 
 The macro will only accept what the concrete interface will accept. So providing the wrong element attributes to the macro will fail at compile time:
 
 ```
-error[E0560]: struct `wurst::attr::HTMLDivElementish` has no field named `value`
+error[E0560]: struct `wurst::elements::DivElement` has no field named `value`
   --> src/main.rs:20:9
    |
 20 |         value: "my value"
-   |         ^^^^^ `wurst::attr::HTMLDivElementish` does not have this field
+   |         ^^^^^ `wurst::elements::DivElement` does not have this field
    |
    = note: available fields are: `title`, `lang`, `dir`, `inner_text`, `access_key` ... and 3 others
 

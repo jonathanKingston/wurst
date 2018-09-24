@@ -86,19 +86,21 @@ impl Codegen {
 
     pub fn get_create_element_macro(&self) -> proc_macro2::TokenStream {
         let mut arms = vec![];
-        let mut macro_interfaces: Vec<(&str, &str)> =
+        let mut macro_interfaces: Vec<(String, String)> =
             self.interfaces.tag_interfaces().into_iter().collect();
         // Fallback for non named tags
         macro_interfaces.push(("$name".into(), "HTMLElementish".into()));
-        for (tag, interface) in macro_interfaces {
+        for (tag, _interface) in macro_interfaces {
             let mut tag_string = quote!{#tag};
             let mut match_name = tag_string.clone();
-            if let "$name" = tag {
+            let mut tag_name = Some(tag.clone());
+            if let "$name" = tag.as_str() {
                 tag_string = quote!{$name};
                 match_name = quote!{$name:tt};
+                tag_name = None;
             };
             let interface_name = Ident::new(
-                &Codegen::get_wurst_interface_name(interface),
+                &Codegen::get_wurst_interface_name(tag_name),
                 Span::call_site(),
             );
             arms.push(quote!{
@@ -129,7 +131,7 @@ impl Codegen {
         })
     }
 
-    fn enum_variant_from_tag_name(s: &str) -> String {
+    fn enum_variant_from_tag_name(s: String) -> String {
         let mut c = s.chars();
         match c.next() {
             None => panic!("enum variant can't be blank"),
@@ -143,9 +145,9 @@ impl Codegen {
         let enum_interfaces = self.interfaces.tag_interfaces().clone();
         // TODO why is generic here breaking the code?! conflicting implementation error
         // enum_interfaces.insert("GenericEl", "HTMLElementish");
-        for (tag, interface) in enum_interfaces {
+        for (tag, _interface) in enum_interfaces {
             let ident = Ident::new(
-                &Codegen::get_wurst_interface_name(interface),
+                &Codegen::get_wurst_interface_name(Some(tag.clone())),
                 Span::call_site(),
             );
             let tag_ident =
@@ -171,8 +173,8 @@ impl Codegen {
 
     pub fn get_interfaces_code(&self) -> Vec<proc_macro2::TokenStream> {
         let mut interfaces = vec![];
-        for (_tag, interface) in &self.interfaces.tag_interfaces() {
-            interfaces.push(self.get_interface_code(interface));
+        for (tag, interface) in &self.interfaces.tag_interfaces() {
+            interfaces.push(self.get_interface_code(interface, Some(tag)));
         }
         interfaces
     }
@@ -181,8 +183,14 @@ impl Codegen {
         String::from(interface_name).replace("HTML", "Html")
     }
 
-    pub fn get_wurst_interface_name(interface_name: &str) -> String {
-        format!("{}ish", interface_name)
+    pub fn get_wurst_interface_name(tag_name: Option<String>) -> String {
+        match tag_name {
+            None => String::from("GenericElement"),
+            Some(tag_name) => {
+                let tag_prefix = Codegen::enum_variant_from_tag_name(tag_name);
+                format!("{}Element", tag_prefix)
+            }
+        }
     }
 
     pub fn fields(&self, interface_name: &str, fields: &mut Vec<proc_macro2::TokenStream>) {
@@ -225,7 +233,11 @@ impl Codegen {
         self.fields(interface_name, fields);
     }
 
-    pub fn get_other_methods(&self, interface_name: &str) -> proc_macro2::TokenStream {
+    pub fn get_other_methods(
+        &self,
+        interface_name: &str,
+        tag_name: Option<&str>,
+    ) -> proc_macro2::TokenStream {
         // TODO save me from this hardcoded lifestyle
         let mut body = quote!{};
         let code_interface_name = Ident::new(
@@ -249,7 +261,7 @@ impl Codegen {
             };
         }
 
-        let interface_name = Codegen::get_wurst_interface_name(interface_name);
+        let interface_name = Codegen::get_wurst_interface_name(tag_name.map(|v| String::from(v)));
         let interface_ident = Ident::new(&interface_name, Span::call_site());
 
         quote!{
@@ -265,7 +277,11 @@ impl Codegen {
         }
     }
 
-    pub fn get_interface_code(&self, interface_name: &str) -> proc_macro2::TokenStream {
+    pub fn get_interface_code(
+        &self,
+        interface_name: &str,
+        tag_name: Option<&str>,
+    ) -> proc_macro2::TokenStream {
         let mut fields = vec![];
         let mut interfaces = vec![];
 
@@ -278,9 +294,9 @@ impl Codegen {
         if interface_name != "Element" {
             self.add_interface("Element", &mut fields, &mut interfaces);
         }
-        let other_methods = self.get_other_methods(&interface_name);
+        let other_methods = self.get_other_methods(&interface_name, tag_name);
 
-        let interface_name = Codegen::get_wurst_interface_name(interface_name);
+        let interface_name = Codegen::get_wurst_interface_name(tag_name.map(|v| String::from(v)));
         let interface_ident = Ident::new(&interface_name, Span::call_site());
 
         quote!{
@@ -315,7 +331,7 @@ impl Codegen {
             self.get_console_macro("error"),
             self.get_console_macro("warn"),
         ];
-        let fallback = self.get_interface_code("HTMLElement");
+        let fallback = self.get_interface_code("HTMLElement", None);
         let interfaces = self.get_interfaces_code();
         let enum_code = self.get_enum_code();
         (quote!{
@@ -323,7 +339,7 @@ impl Codegen {
             #macro_code
             #(#console_macro_code)*
 
-            pub mod attr {
+            pub mod elements {
                 pub use crate::{El, Elementish};
                 #enum_code
 
