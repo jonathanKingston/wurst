@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate wurst;
 // TODO generate a prelude
-use wurst::attr::*;
+use wurst::elements::*;
 use wurst::{El, OutputConsole};
 
 extern crate wasm_bindgen;
