@@ -13,6 +13,7 @@ members = [
     "crates/parser",
     "crates/codegen",
     "examples/dom",
+    "examples/form-example",
 ]
 
 [build-dependencies]
@@ -21,12 +22,7 @@ sourcefile = "0.1"
 failure = "0.1.2"
 weedle = "0.6"
 
-[patch.'https://github.com/rustwasm/wasm-bindgen.git']
-wasm-bindgen = { path = "/home/jonathan/debugging/wasm-bindgen/" }
-web-sys = { path = "/home/jonathan/debugging/wasm-bindgen/crates/web-sys/" }
-js-sys = { path = "/home/jonathan/debugging/wasm-bindgen/crates/js-sys/" }
-
 [dependencies]
 wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
 js-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement', 'HtmlFormElement', 'HtmlTitleElement', 'HtmlBodyElement', 'HtmlHeadElement', 'HtmlMetaElement', 'HtmlButtonElement', 'HtmlTextAreaElement', 'HtmlSelectElement', 'HtmlBrElement', 'HtmlUListElement', 'HtmlOListElement', 'HtmlLiElement', 'HtmlHrElement', 'HtmlDListElement', 'HtmlOptionElement', 'HtmlCanvasElement', 'HtmlPreElement', 'HtmlFieldSetElement', 'HtmlSpanElement', 'HtmlParagraphElement', 'HtmlHtmlElement', 'HtmlFontElement', 'HtmlScriptElement', 'HtmlStyleElement', 'HtmlMapElement', 'HtmlSourceElement', 'HtmlDataElement', 'HtmlAreaElement', 'HtmlOutputElement', 'HtmlLinkElement', 'HtmlAnchorElement', 'HtmlEmbedElement', 'HtmlTableCellElement', 'HtmlLegendElement', 'HtmlTableRowElement', 'HtmlVideoElement', 'HtmlBaseElement', 'HtmlParamElement', 'HtmlTableSectionElement', 'HtmlOptGroupElement', 'HtmlTimeElement', 'HtmlFrameSetElement', 'HtmlDialogElement', 'HtmlDialogElement', 'HtmlMenuElement', 'HtmlObjectElement', 'HtmlSlotElement', 'HtmlTrackElement', 'HtmlMenuItemElement', 'HtmlModElement', 'HtmlIFrameElement', 'HtmlQuoteElement', 'HtmlFrameElement'] }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['console', 'Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement', 'HtmlFormElement', 'HtmlTitleElement', 'HtmlBodyElement', 'HtmlHeadElement', 'HtmlMetaElement', 'HtmlButtonElement', 'HtmlTextAreaElement', 'HtmlSelectElement', 'HtmlBrElement', 'HtmlUListElement', 'HtmlOListElement', 'HtmlLiElement', 'HtmlHrElement', 'HtmlDListElement', 'HtmlOptionElement', 'HtmlCanvasElement', 'HtmlPreElement', 'HtmlFieldSetElement', 'HtmlSpanElement', 'HtmlParagraphElement', 'HtmlHtmlElement', 'HtmlFontElement', 'HtmlScriptElement', 'HtmlStyleElement', 'HtmlMapElement', 'HtmlSourceElement', 'HtmlDataElement', 'HtmlAreaElement', 'HtmlOutputElement', 'HtmlLinkElement', 'HtmlAnchorElement', 'HtmlEmbedElement', 'HtmlTableCellElement', 'HtmlLegendElement', 'HtmlTableRowElement', 'HtmlVideoElement', 'HtmlBaseElement', 'HtmlParamElement', 'HtmlTableSectionElement', 'HtmlOptGroupElement', 'HtmlTimeElement', 'HtmlFrameSetElement', 'HtmlDialogElement', 'HtmlDialogElement', 'HtmlMenuElement', 'HtmlObjectElement', 'HtmlSlotElement', 'HtmlTrackElement', 'HtmlMenuItemElement', 'HtmlModElement', 'HtmlIFrameElement', 'HtmlQuoteElement', 'HtmlFrameElement'] }

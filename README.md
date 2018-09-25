@@ -7,9 +7,39 @@ Webby DOM abstraction.
 - Provide compile time checking as a default for params
 - Have an escape hatch to the type system for runtime checking
 
+# Setup
+
+Currently this code is only tested with Nighly and the latest wasm-bindgen.
+
+Given we are in an unreleased state at the moment, please enusre you have the latest wasm-bindgen binary:
+
+```
+rustup update
+cargo install -f wasm-bindgen-cli --git https://github.com/rustwasm/wasm-bindgen.git
+```
+
+To enable well formatted generated code:
+```
+export WEBIDL_RUSTFMT_BINDINGS = 1;
+```
+
+I'm also only checking this on Nightly at the moment. Other builds may work.
+
 ## Build
 
+There is currently a `main.rs`
+
 ```bash
+source build.sh
+```
+
+## Example
+
+[Form Example](/examples/form-example/src/lib.rs)
+
+To run a demo server:
+```
+cd examples/form-example/;
 source build.sh
 ```
 
