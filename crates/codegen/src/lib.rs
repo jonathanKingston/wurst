@@ -218,7 +218,7 @@ impl Codegen {
         let flush_interface_calls = Ident::new(&flush_name, Span::call_site());
         let interface_calls =
             self.method_calls(interface_name, Ident::new("iface_el", Span::call_site()));
-        if interface_calls.len() > 0 {
+        if !interface_calls.is_empty() {
             interfaces.push(quote!{
                 #[allow(clippy::let_unit_value)]
                 let #flush_interface_calls = |el: &web_sys::Node| {
