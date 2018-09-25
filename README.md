@@ -37,16 +37,6 @@ cd examples/form-example/;
 source build.sh
 ```
 
-## Example
-
-[Form Example](/examples/form-example/src/lib.rs)
-
-To run a demo server:
-```
-cd examples/form-example/;
-source build.sh
-```
-
 ## Usage
 
 Current usage of the library:
