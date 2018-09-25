@@ -1,0 +1,13 @@
+[package]
+name = "form-example"
+version = "0.1.0"
+authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wurst = { path = "../.." }
+wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+js-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
