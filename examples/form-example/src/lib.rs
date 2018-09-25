@@ -11,7 +11,7 @@ extern crate js_sys;
 extern crate web_sys;
 
 #[wasm_bindgen]
-pub fn make() {
+pub fn run() {
     let mut div = create_element!("div", {
         // Element interface
         id: "Boop",

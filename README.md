@@ -1,11 +1,13 @@
 # WURST
 
-Webby DOM abstraction.
+Webby DOM abstraction of [web-sys](https://rustwasm.github.io/wasm-bindgen/api/web_sys/).
 
-## Aims
+## Project Aims
 
-- Provide compile time checking as a default for params
-- Have an escape hatch to the type system for runtime checking
+- Wrap all the DOM APIs and provide an ergonomic easy to use library
+- Provide compile time checking of Front End code.
+- Have an escape hatch to the DOM for runtime checking.
+- Provide a zero cost abstraction on top of the DOM
 
 # Setup
 
@@ -20,16 +22,18 @@ cargo install -f wasm-bindgen-cli --git https://github.com/rustwasm/wasm-bindgen
 
 To enable well formatted generated code:
 ```
-export WEBIDL_RUSTFMT_BINDINGS = 1;
+export WEBIDL_RUSTFMT_BINDINGS=1;
 ```
 
 I'm also only checking this on Nightly at the moment. Other builds may work.
 
-## Build
+## Example
 
-There is currently a `main.rs`
+[Form Example](/examples/form-example/src/lib.rs)
 
-```bash
+To run a demo server:
+```
+cd examples/form-example/;
 source build.sh
 ```
 
