@@ -6,6 +6,7 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::ToTokens;
 extern crate parser;
 use parser::Interfaces;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Codegen {
@@ -233,6 +234,47 @@ impl Codegen {
         self.fields(interface_name, fields);
     }
 
+    fn get_generated_methods(
+        &self,
+        method_output: &mut HashMap<String, proc_macro2::TokenStream>,
+        interface_name:  &str,
+    ) {
+        let code_interface_name = Ident::new(
+            &Codegen::get_element_interface_name(interface_name),
+            Span::call_site(),
+        );
+        // Lets just expect these methods
+        if let Some(parsed_methods) = self.interfaces.get_methods(interface_name) {
+            if !parsed_methods.is_empty() {
+                for parsed_method in parsed_methods {
+                    // TODO use &str
+                    if let Some(_) = method_output.get(&String::from(parsed_method)) {
+                        continue;
+                    }
+                    let method_ident = Ident::new(
+                        &Codegen::get_element_interface_name(parsed_method),
+                        Span::call_site(),
+                    );
+                    method_output.insert(String::from(parsed_method), quote!{
+                        pub fn #method_ident(&mut self) -> () {
+                            let el = self._node.take().unwrap();
+                            let r = {
+                                let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
+                                dyn_el.map(|iface_el| {
+                                    iface_el.#method_ident()
+                                }).unwrap()
+                            };
+                            self._node = Some(el);
+                            //r
+                            // TODO handle return values here
+                            ()
+                        }
+                    });
+                }
+            }
+        }
+    }
+
     pub fn get_other_methods(
         &self,
         interface_name: &str,
@@ -244,34 +286,19 @@ impl Codegen {
             &Codegen::get_element_interface_name(interface_name),
             Span::call_site(),
         );
+        let mut method_output = HashMap::new();
 
-        if let Some(parsed_methods) = self.interfaces.get_methods(interface_name) {
-            if !parsed_methods.is_empty() {
-                let mut method_output = vec![];
-                for parsed_method in parsed_methods {
-                    let method_ident = Ident::new(
-                        &Codegen::get_element_interface_name(parsed_method),
-                        Span::call_site(),
-                    );
-                    method_output.push(quote!{
-                        pub fn #method_ident(&mut self) -> () {
-                            let el = self._node.take().unwrap();
-                            let r = {
-                                let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
-                                dyn_el.map(|iface_el| {
-                                    iface_el.#method_ident()
-                                }).unwrap()
-                            };
-                            self._node = Some(el);
-                            //r
-                            ()
-                        }
-                    });
-                }
-                body = quote!{
-                    #(#method_output)*
-                };
-            }
+        self.get_generated_methods(&mut method_output, interface_name);
+        self.get_generated_methods(&mut method_output, "HTMLElement");
+        self.get_generated_methods(&mut method_output, "Element");
+        self.get_generated_methods(&mut method_output, "Node");
+        self.get_generated_methods(&mut method_output, "EventTarget");
+
+        if !method_output.is_empty() {
+            let method_vec: Vec<proc_macro2::TokenStream> = method_output.into_iter().map(|(_, a)| a).collect();
+            body = quote!{
+                #(#method_vec)*
+            };
         }
 
         if interface_name == "HTMLInputElement" {
@@ -323,6 +350,7 @@ impl Codegen {
         if interface_name != "Element" {
             self.add_interface("Element", &mut fields, &mut interfaces);
         }
+        // TODO we need generated methods from other interfaces.
         let other_methods = self.get_other_methods(&interface_name, tag_name);
 
         let interface_name = Codegen::get_wurst_interface_name(tag_name.map(|v| String::from(v)));
