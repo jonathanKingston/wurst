@@ -15,8 +15,14 @@ extern crate heck;
 use heck::SnakeCase;
 
 #[derive(Debug)]
+pub enum InterfaceFeature {
+    Property(String),
+    Function(String),
+}
+
+#[derive(Debug)]
 pub struct Interfaces {
-    data: HashMap<String, Vec<String>>,
+    data: HashMap<String, Vec<InterfaceFeature>>,
 }
 
 macro_rules! html_tag {
@@ -218,7 +224,7 @@ impl Interfaces {
                                         continue;
                                     }
                                     let name = String::from(a.identifier.0).to_snake_case();
-                                    setters.push(name);
+                                    setters.push(InterfaceFeature::Property(name));
                                 }
                             }
                         }
@@ -233,18 +239,22 @@ impl Interfaces {
         Ok(Interfaces { data: interfaces })
     }
 
-    pub fn has_method_in_interface(&self, interface_name: &str, method_name: &str) -> bool {
-        if let Some(methods) = self.data.get(interface_name) {
-            for method in methods {
-                if method == method_name {
-                    return true;
-                }
-            }
+    pub fn has_properties_in_interface(&self, interface_name: &str, method_name: &str) -> bool {
+        if let Some(methods) = self.get_properties(interface_name) {
+            methods.iter().filter(|a| &method_name == *a);
         }
-        return false;
+        false
     }
 
-    pub fn get_methods(&self, interface_name: &str) -> Option<&Vec<String>> {
-        self.data.get(interface_name)
+    pub fn get_properties(&self, interface_name: &str) -> Option<Vec<&str>> {
+        return self.data.get(interface_name).map(|methods| {
+            return methods.iter().filter_map(|a| {
+                if let InterfaceFeature::Property(method_name) = a {
+                    Some(method_name.as_str())
+                } else {
+                    None
+                }
+            }).collect();
+        });
     }
 }

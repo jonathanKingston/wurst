@@ -20,7 +20,7 @@ impl Codegen {
 
     fn method_calls(&self, interface_name: &str, el: Ident) -> Vec<proc_macro2::TokenStream> {
         let mut interface_calls = vec![];
-        if let Some(methods) = self.interfaces.get_methods(interface_name) {
+        if let Some(methods) = self.interfaces.get_properties(interface_name) {
             for field in methods {
                 let field_ident = Ident::new(field, Span::call_site());
                 let attr_name = field.to_string();
@@ -194,7 +194,7 @@ impl Codegen {
     }
 
     pub fn fields(&self, interface_name: &str, fields: &mut Vec<proc_macro2::TokenStream>) {
-        if let Some(methods) = self.interfaces.get_methods(interface_name) {
+        if let Some(methods) = self.interfaces.get_properties(interface_name) {
             for field in methods {
                 let field_ident = Ident::new(field, Span::call_site());
                 fields.push(quote!{pub #field_ident: Option<String>,});
