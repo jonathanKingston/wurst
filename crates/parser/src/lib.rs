@@ -16,8 +16,8 @@ use heck::SnakeCase;
 
 #[derive(Debug)]
 pub enum ReturnType {
-  Void,
-  Bool
+    Void,
+    Bool,
 }
 
 #[derive(Debug)]
@@ -238,9 +238,22 @@ impl Interfaces {
                                 let name = String::from(id.0).to_snake_case();
                                 if a.args.body.list.is_empty() {
                                     if let weedle::types::ReturnType::Void(_) = a.return_type {
-                                        setters.push(InterfaceFeature::Function(name, ReturnType::Void));
-                                    } else if let weedle::types::ReturnType::Type(weedle::types::Type::Single(weedle::types::SingleType::NonAny(weedle::types::NonAnyType::Boolean(b)))) = a.return_type {
-                                        setters.push(InterfaceFeature::Function(name, ReturnType::Bool));
+                                        setters.push(InterfaceFeature::Function(
+                                            name,
+                                            ReturnType::Void,
+                                        ));
+                                    } else if let weedle::types::ReturnType::Type(
+                                        weedle::types::Type::Single(
+                                            weedle::types::SingleType::NonAny(
+                                                weedle::types::NonAnyType::Boolean(b),
+                                            ),
+                                        ),
+                                    ) = a.return_type
+                                    {
+                                        setters.push(InterfaceFeature::Function(
+                                            name,
+                                            ReturnType::Bool,
+                                        ));
                                     }
                                 }
                             }
@@ -265,30 +278,32 @@ impl Interfaces {
 
     pub fn get_properties(&self, interface_name: &str) -> Option<Vec<&str>> {
         return self.data.get(interface_name).map(|methods| {
-            return methods.iter().filter_map(|a| {
-                if let InterfaceFeature::Property(method_name) = a {
-                    Some(method_name.as_str())
-                } else {
-                    None
-                }
-            }).collect();
+            return methods
+                .iter()
+                .filter_map(|a| {
+                    if let InterfaceFeature::Property(method_name) = a {
+                        Some(method_name.as_str())
+                    } else {
+                        None
+                    }
+                }).collect();
         });
     }
 
     pub fn get_methods(&self, interface_name: &str) -> Option<Vec<(&str, Option<()>)>> {
         return self.data.get(interface_name).map(|methods| {
-            return methods.iter().filter_map(|a| {
-                if let InterfaceFeature::Function(method_name, return_type) = a {
-                    match return_type {
-                        ReturnType::Void => Some((method_name.as_str(), None)),
-                        ReturnType::Bool => {
-                          Some((method_name.as_str(), Some(())))
+            return methods
+                .iter()
+                .filter_map(|a| {
+                    if let InterfaceFeature::Function(method_name, return_type) = a {
+                        match return_type {
+                            ReturnType::Void => Some((method_name.as_str(), None)),
+                            ReturnType::Bool => Some((method_name.as_str(), Some(()))),
                         }
+                    } else {
+                        None
                     }
-                } else {
-                    None
-                }
-            }).collect();
+                }).collect();
         });
     }
 }

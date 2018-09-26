@@ -237,7 +237,7 @@ impl Codegen {
     fn get_generated_methods(
         &self,
         method_output: &mut HashMap<String, proc_macro2::TokenStream>,
-        interface_name:  &str,
+        interface_name: &str,
     ) {
         let code_interface_name = Ident::new(
             &Codegen::get_element_interface_name(interface_name),
@@ -256,7 +256,7 @@ impl Codegen {
                         Some(_a) => {
                             return_value = quote!{r};
                             quote!{bool}
-                        },
+                        }
                         // TODO handle return values here
                         None => quote!{()},
                     };
@@ -303,7 +303,8 @@ impl Codegen {
         self.get_generated_methods(&mut method_output, "EventTarget");
 
         if !method_output.is_empty() {
-            let method_vec: Vec<proc_macro2::TokenStream> = method_output.into_iter().map(|(_, a)| a).collect();
+            let method_vec: Vec<proc_macro2::TokenStream> =
+                method_output.into_iter().map(|(_, a)| a).collect();
             body = quote!{
                 #(#method_vec)*
             };
