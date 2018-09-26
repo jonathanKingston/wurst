@@ -3,7 +3,7 @@ edition = "2018"
 name = "wurst"
 description = "Webby UI Rust abstraction"
 license = "MIT OR Apache-2.0"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
 build = "build.rs"
 repository = "https://github.com/jonathanKingston/wurst"
@@ -23,6 +23,6 @@ failure = "0.1.2"
 weedle = "0.6"
 
 [dependencies]
-wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-js-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git', features = ['console', 'Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement', 'HtmlFormElement', 'HtmlTitleElement', 'HtmlBodyElement', 'HtmlHeadElement', 'HtmlMetaElement', 'HtmlButtonElement', 'HtmlTextAreaElement', 'HtmlSelectElement', 'HtmlBrElement', 'HtmlUListElement', 'HtmlOListElement', 'HtmlLiElement', 'HtmlHrElement', 'HtmlDListElement', 'HtmlOptionElement', 'HtmlCanvasElement', 'HtmlPreElement', 'HtmlFieldSetElement', 'HtmlSpanElement', 'HtmlParagraphElement', 'HtmlHtmlElement', 'HtmlFontElement', 'HtmlScriptElement', 'HtmlStyleElement', 'HtmlMapElement', 'HtmlSourceElement', 'HtmlDataElement', 'HtmlAreaElement', 'HtmlOutputElement', 'HtmlLinkElement', 'HtmlAnchorElement', 'HtmlEmbedElement', 'HtmlTableCellElement', 'HtmlLegendElement', 'HtmlTableRowElement', 'HtmlVideoElement', 'HtmlBaseElement', 'HtmlParamElement', 'HtmlTableSectionElement', 'HtmlOptGroupElement', 'HtmlTimeElement', 'HtmlFrameSetElement', 'HtmlDialogElement', 'HtmlDialogElement', 'HtmlMenuElement', 'HtmlObjectElement', 'HtmlSlotElement', 'HtmlTrackElement', 'HtmlMenuItemElement', 'HtmlModElement', 'HtmlIFrameElement', 'HtmlQuoteElement', 'HtmlFrameElement', 'HtmlTableElement'] }
+wasm-bindgen = "0.2.23"
+js-sys = { version = "0.3.0" }
+web-sys = { version = "0.3.0", features = ['console', 'Element', 'Node', 'Window', 'HtmlElement', 'Document', 'HtmlDivElement', 'HtmlLabelElement', 'HtmlImageElement', 'HtmlInputElement', 'HtmlFormElement', 'HtmlTitleElement', 'HtmlBodyElement', 'HtmlHeadElement', 'HtmlMetaElement', 'HtmlButtonElement', 'HtmlTextAreaElement', 'HtmlSelectElement', 'HtmlBrElement', 'HtmlUListElement', 'HtmlOListElement', 'HtmlLiElement', 'HtmlHrElement', 'HtmlDListElement', 'HtmlOptionElement', 'HtmlCanvasElement', 'HtmlPreElement', 'HtmlFieldSetElement', 'HtmlSpanElement', 'HtmlParagraphElement', 'HtmlHtmlElement', 'HtmlFontElement', 'HtmlScriptElement', 'HtmlStyleElement', 'HtmlMapElement', 'HtmlSourceElement', 'HtmlDataElement', 'HtmlAreaElement', 'HtmlOutputElement', 'HtmlLinkElement', 'HtmlAnchorElement', 'HtmlEmbedElement', 'HtmlTableCellElement', 'HtmlLegendElement', 'HtmlTableRowElement', 'HtmlVideoElement', 'HtmlBaseElement', 'HtmlParamElement', 'HtmlTableSectionElement', 'HtmlOptGroupElement', 'HtmlTimeElement', 'HtmlFrameSetElement', 'HtmlDialogElement', 'HtmlDialogElement', 'HtmlMenuElement', 'HtmlObjectElement', 'HtmlSlotElement', 'HtmlTrackElement', 'HtmlMenuItemElement', 'HtmlModElement', 'HtmlIFrameElement', 'HtmlQuoteElement', 'HtmlFrameElement', 'HtmlTableElement'] }
