@@ -1,11 +1,8 @@
 #![recursion_limit = "128"]
 extern crate proc_macro2;
-#[macro_use]
-extern crate quote;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::ToTokens;
-extern crate parser;
-use parser::Interfaces;
+use crate::parser::Interfaces;
 use std::collections::HashMap;
 
 #[derive(Debug)]

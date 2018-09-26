@@ -1,11 +1,14 @@
-extern crate codegen;
+#[macro_use]
+extern crate quote;
 
 use std::env;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use codegen::Codegen;
+mod codegen;
+mod parser;
+use self::codegen::Codegen;
 #[macro_use]
 extern crate failure;
 use failure::ResultExt;
