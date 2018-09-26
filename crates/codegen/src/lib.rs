@@ -194,8 +194,8 @@ impl Codegen {
     }
 
     pub fn fields(&self, interface_name: &str, fields: &mut Vec<proc_macro2::TokenStream>) {
-        if let Some(methods) = self.interfaces.get_properties(interface_name) {
-            for field in methods {
+        if let Some(properties) = self.interfaces.get_properties(interface_name) {
+            for field in properties {
                 let field_ident = Ident::new(field, Span::call_site());
                 fields.push(quote!{pub #field_ident: Option<String>,});
             }
@@ -244,6 +244,35 @@ impl Codegen {
             &Codegen::get_element_interface_name(interface_name),
             Span::call_site(),
         );
+
+        if let Some(parsed_methods) = self.interfaces.get_methods(interface_name) {
+            if !parsed_methods.is_empty() {
+                let mut method_output = vec![];
+                for parsed_method in parsed_methods {
+                    let method_ident = Ident::new(
+                        &Codegen::get_element_interface_name(parsed_method),
+                        Span::call_site(),
+                    );
+                    method_output.push(quote!{
+                        pub fn #method_ident(&mut self) -> () {
+                            let el = self._node.take().unwrap();
+                            let r = {
+                                let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
+                                dyn_el.map(|iface_el| {
+                                    iface_el.#method_ident()
+                                }).unwrap()
+                            };
+                            self._node = Some(el);
+                            //r
+                            ()
+                        }
+                    });
+                }
+                body = quote!{
+                    #(#method_output)*
+                };
+            }
+        }
 
         if interface_name == "HTMLInputElement" {
             body = quote!{
