@@ -17,7 +17,7 @@ Given we are in an unreleased state at the moment, please enusre you have the la
 
 ```
 rustup update
-cargo install -f wasm-bindgen-cli --git https://github.com/rustwasm/wasm-bindgen.git
+cargo install -f wasm-bindgen-cli
 ```
 
 To enable well formatted generated code:

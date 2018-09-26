@@ -15,8 +15,20 @@ extern crate heck;
 use heck::SnakeCase;
 
 #[derive(Debug)]
+pub enum ReturnType {
+    Void,
+    Bool,
+}
+
+#[derive(Debug)]
+pub enum InterfaceFeature {
+    Property(String),
+    Function(String, ReturnType),
+}
+
+#[derive(Debug)]
 pub struct Interfaces {
-    data: HashMap<String, Vec<String>>,
+    data: HashMap<String, Vec<InterfaceFeature>>,
 }
 
 macro_rules! html_tag {
@@ -208,7 +220,6 @@ impl Interfaces {
                         if let weedle::interface::InterfaceMember::Attribute(a) = attr {
                             if a.readonly.is_none() {
                                 if let Single(NonAny(DOMString(t))) = a.type_.type_ {
-                                    println!("a: {:#?}", a);
                                     if t.q_mark != None {
                                         // TODO handle optionals
                                         continue;
@@ -218,7 +229,32 @@ impl Interfaces {
                                         continue;
                                     }
                                     let name = String::from(a.identifier.0).to_snake_case();
-                                    setters.push(name);
+                                    setters.push(InterfaceFeature::Property(name));
+                                }
+                            }
+                        } else if let weedle::interface::InterfaceMember::Operation(a) = attr {
+                            // TODO we just support 0 argument functions with no return
+                            if let Some(id) = a.identifier {
+                                let name = String::from(id.0).to_snake_case();
+                                if a.args.body.list.is_empty() {
+                                    if let weedle::types::ReturnType::Void(_) = a.return_type {
+                                        setters.push(InterfaceFeature::Function(
+                                            name,
+                                            ReturnType::Void,
+                                        ));
+                                    } else if let weedle::types::ReturnType::Type(
+                                        weedle::types::Type::Single(
+                                            weedle::types::SingleType::NonAny(
+                                                weedle::types::NonAnyType::Boolean(b),
+                                            ),
+                                        ),
+                                    ) = a.return_type
+                                    {
+                                        setters.push(InterfaceFeature::Function(
+                                            name,
+                                            ReturnType::Bool,
+                                        ));
+                                    }
                                 }
                             }
                         }
@@ -233,18 +269,41 @@ impl Interfaces {
         Ok(Interfaces { data: interfaces })
     }
 
-    pub fn has_method_in_interface(&self, interface_name: &str, method_name: &str) -> bool {
-        if let Some(methods) = self.data.get(interface_name) {
-            for method in methods {
-                if method == method_name {
-                    return true;
-                }
-            }
+    pub fn has_properties_in_interface(&self, interface_name: &str, method_name: &str) -> bool {
+        if let Some(methods) = self.get_properties(interface_name) {
+            methods.iter().filter(|a| &method_name == *a);
         }
-        return false;
+        false
     }
 
-    pub fn get_methods(&self, interface_name: &str) -> Option<&Vec<String>> {
-        self.data.get(interface_name)
+    pub fn get_properties(&self, interface_name: &str) -> Option<Vec<&str>> {
+        return self.data.get(interface_name).map(|methods| {
+            return methods
+                .iter()
+                .filter_map(|a| {
+                    if let InterfaceFeature::Property(method_name) = a {
+                        Some(method_name.as_str())
+                    } else {
+                        None
+                    }
+                }).collect();
+        });
+    }
+
+    pub fn get_methods(&self, interface_name: &str) -> Option<Vec<(&str, Option<()>)>> {
+        return self.data.get(interface_name).map(|methods| {
+            return methods
+                .iter()
+                .filter_map(|a| {
+                    if let InterfaceFeature::Function(method_name, return_type) = a {
+                        match return_type {
+                            ReturnType::Void => Some((method_name.as_str(), None)),
+                            ReturnType::Bool => Some((method_name.as_str(), Some(()))),
+                        }
+                    } else {
+                        None
+                    }
+                }).collect();
+        });
     }
 }

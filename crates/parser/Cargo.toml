@@ -9,4 +9,4 @@ sourcefile = "0.1"
 failure = "0.1.2"
 weedle = "0.6"
 heck = "0.3"
-wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+wasm-bindgen = "0.2.23" 

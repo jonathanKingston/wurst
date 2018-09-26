@@ -55,5 +55,3 @@ pub fn run() {
         el
     });
 }
-
-fn main() {}

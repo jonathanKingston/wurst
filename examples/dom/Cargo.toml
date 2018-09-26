@@ -8,5 +8,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wurst = { path = "../.." }
-wasm-bindgen = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
-web-sys = { git = 'https://github.com/rustwasm/wasm-bindgen.git' }
+wasm-bindgen = "0.2.23"
+web-sys = "0.3.0"
