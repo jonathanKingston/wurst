@@ -246,18 +246,28 @@ impl Codegen {
         // Lets just expect these methods
         if let Some(parsed_methods) = self.interfaces.get_methods(interface_name) {
             if !parsed_methods.is_empty() {
-                for parsed_method in parsed_methods {
+                for (method_name, return_type) in parsed_methods {
                     // TODO use &str
-                    if let Some(_) = method_output.get(&String::from(parsed_method)) {
+                    if let Some(_) = method_output.get(&String::from(method_name)) {
                         continue;
                     }
+                    let mut return_value = quote!{()};
+                    let return_token = match return_type {
+                        Some(_a) => {
+                            return_value = quote!{r};
+                            quote!{bool}
+                        },
+                        // TODO handle return values here
+                        None => quote!{()},
+                    };
                     let method_ident = Ident::new(
-                        &Codegen::get_element_interface_name(parsed_method),
+                        &Codegen::get_element_interface_name(method_name),
                         Span::call_site(),
                     );
-                    method_output.insert(String::from(parsed_method), quote!{
-                        pub fn #method_ident(&mut self) -> () {
+                    method_output.insert(String::from(method_name), quote!{
+                        pub fn #method_ident(&mut self) -> #return_token {
                             let el = self._node.take().unwrap();
+                            // TODO handle
                             let r = {
                                 let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
                                 dyn_el.map(|iface_el| {
@@ -265,9 +275,7 @@ impl Codegen {
                                 }).unwrap()
                             };
                             self._node = Some(el);
-                            //r
-                            // TODO handle return values here
-                            ()
+                            #return_value
                         }
                     });
                 }
@@ -301,33 +309,11 @@ impl Codegen {
             };
         }
 
-        if interface_name == "HTMLInputElement" {
-            body = quote!{
-                pub fn check_validity(&mut self) -> bool {
-                    let el = self._node.take().unwrap();
-                    let r = {
-                        let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
-                        dyn_el.map(|iface_el| {
-                            iface_el.check_validity()
-                        }).unwrap()
-                    };
-                    self._node = Some(el);
-                    r
-                }
-            };
-        }
-
         let interface_name = Codegen::get_wurst_interface_name(tag_name.map(|v| String::from(v)));
         let interface_ident = Ident::new(&interface_name, Span::call_site());
 
         quote!{
             impl #interface_ident {
-                pub fn has_child_nodes(&mut self) -> bool {
-                    let el = self._node.take().unwrap();
-                    let r = el.has_child_nodes();
-                    self._node = Some(el);
-                    r
-                }
                 #body
             }
         }

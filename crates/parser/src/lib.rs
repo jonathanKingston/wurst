@@ -15,9 +15,15 @@ extern crate heck;
 use heck::SnakeCase;
 
 #[derive(Debug)]
+pub enum ReturnType {
+  Void,
+  Bool
+}
+
+#[derive(Debug)]
 pub enum InterfaceFeature {
     Property(String),
-    Function(String),
+    Function(String, ReturnType),
 }
 
 #[derive(Debug)]
@@ -214,7 +220,6 @@ impl Interfaces {
                         if let weedle::interface::InterfaceMember::Attribute(a) = attr {
                             if a.readonly.is_none() {
                                 if let Single(NonAny(DOMString(t))) = a.type_.type_ {
-                           //         println!("a: {:#?}", a);
                                     if t.q_mark != None {
                                         // TODO handle optionals
                                         continue;
@@ -229,12 +234,13 @@ impl Interfaces {
                             }
                         } else if let weedle::interface::InterfaceMember::Operation(a) = attr {
                             // TODO we just support 0 argument functions with no return
-                            if let weedle::types::ReturnType::Void(_) = a.return_type {
+                            if let Some(id) = a.identifier {
+                                let name = String::from(id.0).to_snake_case();
                                 if a.args.body.list.is_empty() {
-                                    if let Some(id) = a.identifier {
-                                        // println!(">>>>>>>{:#?} {:?}", a.args, id.0);
-                                        let name = String::from(id.0).to_snake_case();
-                                        setters.push(InterfaceFeature::Function(name));
+                                    if let weedle::types::ReturnType::Void(_) = a.return_type {
+                                        setters.push(InterfaceFeature::Function(name, ReturnType::Void));
+                                    } else if let weedle::types::ReturnType::Type(weedle::types::Type::Single(weedle::types::SingleType::NonAny(weedle::types::NonAnyType::Boolean(b)))) = a.return_type {
+                                        setters.push(InterfaceFeature::Function(name, ReturnType::Bool));
                                     }
                                 }
                             }
@@ -245,7 +251,7 @@ impl Interfaces {
             }
         });
         // TODO remove this
-        // panic!("{:?}", interfaces);
+        //panic!("{:?}", interfaces);
 
         Ok(Interfaces { data: interfaces })
     }
@@ -269,11 +275,16 @@ impl Interfaces {
         });
     }
 
-    pub fn get_methods(&self, interface_name: &str) -> Option<Vec<&str>> {
+    pub fn get_methods(&self, interface_name: &str) -> Option<Vec<(&str, Option<()>)>> {
         return self.data.get(interface_name).map(|methods| {
             return methods.iter().filter_map(|a| {
-                if let InterfaceFeature::Function(method_name) = a {
-                    Some(method_name.as_str())
+                if let InterfaceFeature::Function(method_name, return_type) = a {
+                    match return_type {
+                        ReturnType::Void => Some((method_name.as_str(), None)),
+                        ReturnType::Bool => {
+                          Some((method_name.as_str(), Some(())))
+                        }
+                    }
                 } else {
                     None
                 }
