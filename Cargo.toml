@@ -5,22 +5,23 @@ description = "Webby UI Rust abstraction"
 license = "MIT OR Apache-2.0"
 version = "0.2.0"
 authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
-build = "build.rs"
+build = "build/build.rs"
 repository = "https://github.com/jonathanKingston/wurst"
 
 [workspace]
 members = [
-    "crates/parser",
-    "crates/codegen",
     "examples/dom",
     "examples/form-example",
 ]
 
 [build-dependencies]
-codegen = { path = "crates/codegen", version = "0.1" }
 sourcefile = "0.1"
 failure = "0.1.2"
 weedle = "0.6"
+proc-macro2 = "0.4.19"
+quote = "0.6.8"
+wasm-bindgen = "0.2.23"
+heck = "0.3.0"
 
 [dependencies]
 wasm-bindgen = "0.2.23"
