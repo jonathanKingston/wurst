@@ -6,6 +6,11 @@ authors = ["Jonathan Kingston <jonathan@jooped.co.uk>"]
 [lib]
 crate-type = ["cdylib"]
 
+[profile.release]
+debug = false
+lto = true
+opt-level = 'z'
+
 [dependencies]
 wurst = { path = "../.." }
 wasm-bindgen = { version = "0.2.23" }
