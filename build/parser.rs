@@ -18,6 +18,8 @@ use heck::SnakeCase;
 pub enum ReturnType {
     Void,
     Bool,
+    DOMString,
+    Identifier(String),
 }
 
 #[derive(Debug)]
@@ -207,6 +209,13 @@ impl Interfaces {
                 .with_context(|_| format!("reading contents of file \"{}\"", path.display()))?;
         }
 
+        let interfaces = Self::build_interfaces_from_weedle(source);
+        Ok(Interfaces { data: interfaces.0 })
+    }
+
+    fn build_interfaces_from_weedle(
+        source: SourceFile,
+    ) -> (HashMap<String, Vec<InterfaceFeature>>, SourceFile) {
         use weedle::types::NonAnyType::DOMString;
         use weedle::types::SingleType::NonAny;
         use weedle::types::Type::Single;
@@ -237,6 +246,19 @@ impl Interfaces {
                             if let Some(id) = a.identifier {
                                 let name = String::from(id.0).to_snake_case();
                                 if a.args.body.list.is_empty() {
+                                    // Ignore chrome only code
+                                    if let Some(ref bracketed) = a.attributes {
+                                        use weedle::attribute::ExtendedAttribute::NoArgs;
+                                        use weedle::attribute::ExtendedAttributeNoArgs;
+                                        use weedle::common::Identifier;
+                                        if bracketed.body.list.iter().any(|v| {
+                                              if let NoArgs(ExtendedAttributeNoArgs(Identifier("ChromeOnly"))) = v { return true; }
+false
+                                            }) {
+                                            continue;
+                                        }
+                                    }
+
                                     if let weedle::types::ReturnType::Void(_) = a.return_type {
                                         setters.push(InterfaceFeature::Function(
                                             name,
@@ -245,15 +267,39 @@ impl Interfaces {
                                     } else if let weedle::types::ReturnType::Type(
                                         weedle::types::Type::Single(
                                             weedle::types::SingleType::NonAny(
-                                                weedle::types::NonAnyType::Boolean(b),
+                                                ref val_type
                                             ),
                                         ),
                                     ) = a.return_type
                                     {
-                                        setters.push(InterfaceFeature::Function(
-                                            name,
-                                            ReturnType::Bool,
-                                        ));
+                                        use  weedle::types::NonAnyType::*;
+                                        match val_type {
+                                            Boolean(b) => {
+                                                setters.push(InterfaceFeature::Function(
+                                                    name,
+                                                    ReturnType::Bool,
+                                                ));
+                                            },
+                                            DOMString(_b) => {
+                                                setters.push(InterfaceFeature::Function(
+                                                    name,
+                                                    ReturnType::DOMString,
+                                                ));
+                                            },
+                                            Promise(_b) => {
+                                                // TODO implement
+                                            },
+                                            Sequence(_b) => {
+                                                // TODO implement
+                                            },
+                                            Identifier(b) => {
+                                                setters.push(InterfaceFeature::Function(
+                                                    name,
+                                                    ReturnType::Identifier(String::from(b.type_.0)),
+                                                ));
+                                            },
+                                            _ => panic!("Unsupported return type. ValType {:?}, Name: {:?} {:?}", val_type, name, a),
+                                        }
                                     }
                                 }
                             }
@@ -263,10 +309,9 @@ impl Interfaces {
                 }
             }
         });
+        (interfaces, source)
         // TODO remove this
         //panic!("{:?}", interfaces);
-
-        Ok(Interfaces { data: interfaces })
     }
 
     pub fn has_properties_in_interface(&self, interface_name: &str, method_name: &str) -> bool {
@@ -290,16 +335,13 @@ impl Interfaces {
         });
     }
 
-    pub fn get_methods(&self, interface_name: &str) -> Option<Vec<(&str, Option<()>)>> {
+    pub fn get_methods(&self, interface_name: &str) -> Option<Vec<(&str, &ReturnType)>> {
         return self.data.get(interface_name).map(|methods| {
             return methods
                 .iter()
                 .filter_map(|a| {
                     if let InterfaceFeature::Function(method_name, return_type) = a {
-                        match return_type {
-                            ReturnType::Void => Some((method_name.as_str(), None)),
-                            ReturnType::Bool => Some((method_name.as_str(), Some(()))),
-                        }
+                        Some((method_name.as_str(), return_type.clone()))
                     } else {
                         None
                     }

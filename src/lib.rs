@@ -11,28 +11,45 @@ pub struct El<A: Elementish> {
     pub body: Vec<Box<elements::InterfaceType>>,
 }
 
+// TODO rename
+struct DOMHelper {
+}
+impl DOMHelper {
+    fn document() -> Option<web_sys::Document> {
+        if let Some(window) = web_sys::window() {
+            return window.document();
+        }
+        None
+    }
+
+    fn body() -> Option<web_sys::HtmlElement> {
+        let document = Self::document()?;
+        return document.body();
+    }
+}
+
 impl<A: Elementish> El<A> {
     pub fn create(&mut self) {
-        let el = web_sys::window()
-            .unwrap()
-            .document()
-            .unwrap()
-            .create_element(&self.name)
-            .unwrap();
-        let dom_node: web_sys::Node = el.into();
-        let interface = self.el.take().unwrap();
-        let dom_node = interface.flush(dom_node);
-        self.dom_node = Some(dom_node);
-        self.el = Some(interface);
+        if let Some(document) = DOMHelper::document() {
+            if let Ok(el) = document.create_element(&self.name) {
+                let dom_node: web_sys::Node = el.into();
+                if let Some(interface) = self.el.take() {
+                    let dom_node = interface.flush(dom_node);
+                    self.dom_node = Some(dom_node);
+                    self.el = Some(interface);
+                }
+            }
+        }
     }
 
     pub fn update(&mut self) {
-        self.dom_node = self.dom_node.take().map(|e| {
-            let interface = self.el.take().unwrap();
-            let node = interface.flush(e);
-            self.el = Some(interface);
-            node
-        });
+        if let Some(e) = self.dom_node.take() {
+            if let Some(interface) = self.el.take() {
+                let node = interface.flush(e);
+                self.el = Some(interface);
+                self.dom_node = Some(node);
+            }
+        }
     }
 
     pub fn append<T: Elementish>(&mut self, mut child: El<T>)
@@ -41,13 +58,13 @@ impl<A: Elementish> El<A> {
     {
         let maybe_el = self.dom_node.take();
         if let Some(el) = maybe_el {
-            // TODO fix unwrap
-            let child_node = child.dom_node.take().unwrap();
-            if let Ok(child_el) = el.append_child(&child_node) {
-                self.dom_node = Some(el);
-                child.dom_node = Some(child_el);
-                let child_interface: elements::InterfaceType = child.into();
-                self.body.push(Box::new(child_interface));
+            if let Some(child_node) = child.dom_node.take() {
+                if let Ok(child_el) = el.append_child(&child_node) {
+                    self.dom_node = Some(el);
+                    child.dom_node = Some(child_el);
+                    let child_interface: elements::InterfaceType = child.into();
+                    self.body.push(Box::new(child_interface));
+                }
             }
         }
     }
@@ -58,11 +75,14 @@ impl<A: Elementish> El<A> {
         T: Fn(A) -> A,
     {
         // TODO do something more graceful here for no el like creating one
-        let mut interface = self.el.take().unwrap();
-        interface.set_node(self.dom_node.take().unwrap());
-        interface = callback(interface);
-        self.dom_node = interface.take_node();
-        self.el = Some(interface);
+        if let Some(mut interface) = self.el.take() {
+            if let Some(dom_node) = self.dom_node.take() {
+                interface.set_node(dom_node);
+                interface = callback(interface);
+                self.dom_node = interface.take_node();
+                self.el = Some(interface);
+            }
+        }
     }
 
     // Helper just to append to dom this won't be sticking around
@@ -70,15 +90,11 @@ impl<A: Elementish> El<A> {
     pub fn add_to_body(&mut self) {
         let maybe_el = self.dom_node.take();
         if let Some(el) = maybe_el {
-            let node: web_sys::Node = web_sys::window()
-                .unwrap()
-                .document()
-                .unwrap()
-                .body()
-                .unwrap()
-                .into();
-            if let Ok(el) = node.append_child(&el) {
-                self.dom_node = Some(el);
+            if let Some(body) = DOMHelper::body() {
+                let node: web_sys::Node = body.into();
+                if let Ok(el) = node.append_child(&el) {
+                    self.dom_node = Some(el);
+                }
             }
         }
     }

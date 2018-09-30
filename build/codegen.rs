@@ -2,7 +2,7 @@
 extern crate proc_macro2;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::ToTokens;
-use crate::parser::Interfaces;
+use crate::parser::{Interfaces, ReturnType};
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -132,7 +132,7 @@ impl Codegen {
     fn enum_variant_from_tag_name(s: String) -> String {
         let mut c = s.chars();
         match c.next() {
-            None => panic!("enum variant can't be blank"),
+            None => String::from(""), //panic!("enum variant can't be blank"),
             Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
         }
     }
@@ -248,31 +248,78 @@ impl Codegen {
                     if let Some(_) = method_output.get(&String::from(method_name)) {
                         continue;
                     }
-                    let mut return_value = quote!{()};
+                    let mut has_return = true;
+                    // A falsy return type when we can't get the element, this should never happen but I'm trying to avoid panics
+                    let mut default_return = quote!{()};
+                    // The return type for when the result happens
+                    let mut actual_return = quote!{r};
                     let return_token = match return_type {
-                        Some(_a) => {
-                            return_value = quote!{r};
+                        ReturnType::Bool => {
+                            default_return = quote!{false};
                             quote!{bool}
+                        },
+                        // TODO check this once we have a method that returns this, for the current zero argument fns there isn't
+                        ReturnType::DOMString => {
+                            default_return = quote!{""};
+                            quote!{&str}
+                        },
+                        ReturnType::Identifier(id) => {
+                            let id_ident = Ident::new(
+                                &Codegen::get_element_interface_name(id),
+                                Span::call_site(),
+                            );
+                            default_return = quote!{None};
+                            actual_return = quote!{Some(r)};
+                            quote!{Option<web_sys::#id_ident>}
+                        },
+                        ReturnType::Void => {
+                            has_return = false;
+                            quote!{()}
                         }
-                        // TODO handle return values here
-                        None => quote!{()},
                     };
                     let method_ident = Ident::new(
                         &Codegen::get_element_interface_name(method_name),
                         Span::call_site(),
                     );
-                    method_output.insert(String::from(method_name), quote!{
-                        pub fn #method_ident(&mut self) -> #return_token {
-                            let el = self._node.take().unwrap();
-                            // TODO handle
+
+                    let code_calls = if has_return {
+                        quote!{
                             let r = {
                                 let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
-                                dyn_el.map(|iface_el| {
+                                match dyn_el.map(|iface_el| {
                                     iface_el.#method_ident()
-                                }).unwrap()
+                                }) {
+                                    Some(r) => {
+                                        r
+                                    },
+                                    None => {
+                                        return #default_return;
+                                    }
+                                }
                             };
                             self._node = Some(el);
-                            #return_value
+                            #actual_return
+                        }
+                    } else {
+                        quote!{
+                            let dyn_el: Option<&web_sys::#code_interface_name> = wasm_bindgen::JsCast::dyn_ref(&el);
+                            dyn_el.map(|iface_el| {
+                                iface_el.#method_ident();
+                            });
+                            self._node = Some(el);
+                            ()
+                        }
+                    };
+
+                    method_output.insert(String::from(method_name), quote!{
+                        pub fn #method_ident(&mut self) -> #return_token {
+                            let el = match self._node.take() {
+                                Some(el) => el,
+                                None => {
+                                    return #default_return;
+                                },
+                            };
+                            #code_calls
                         }
                     });
                 }
