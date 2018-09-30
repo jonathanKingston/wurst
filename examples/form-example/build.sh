@@ -14,3 +14,5 @@ cargo +nightly build --target wasm32-unknown-unknown --verbose --release &&
 wasm-bindgen ../../target/wasm32-unknown-unknown/release/form_example.wasm --out-dir . &&
 npm install &&
 npm run serve
+# wasm-opt -Oz -o output.wasm  form_example_bg.wasm  -d
+# brotli output.wasm
